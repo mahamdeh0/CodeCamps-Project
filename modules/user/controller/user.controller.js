@@ -67,5 +67,5 @@ const userLogin = async (req,res)=>{
 
 }
 
-
+  
 module.exports={userSignup,userLogin}
