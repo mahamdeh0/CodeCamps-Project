@@ -40,6 +40,11 @@ const courseSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'teacher', 
         required: true
+    },
+    isApproved: { // New field to indicate admin approval
+        type: Boolean,
+        default: false,
+        required: true
     }
   
 

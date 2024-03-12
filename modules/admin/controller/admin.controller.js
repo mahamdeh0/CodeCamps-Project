@@ -1,6 +1,7 @@
 let bcrypt = require('bcryptjs');
 let jwt = require('jsonwebtoken');
 const { adminModel } = require("../../../DB/model/Admin.model");
+const { courseModel } = require("../../../DB/model/course.model");
 
 const adminSignup = async (req,res)=>{
 
@@ -68,4 +69,24 @@ const adminLogin = async (req,res)=>{
 }
 
 
-module.exports={adminSignup,adminLogin}
+const approveCourse = async (req, res) => {
+    const { courseId } = req.params;
+    try {
+        const course = await courseModel.findById(courseId);
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
+        }
+        
+        course.isApproved = true;
+        await course.save();
+
+        res.json({ message: "Course approved successfully" });
+    } catch (error) {
+        console.error("Error approving course:", error);
+        res.status(500).json({ message: "Error approving course", error: error.message });
+    }
+};
+
+
+
+module.exports={adminSignup,adminLogin,approveCourse}
