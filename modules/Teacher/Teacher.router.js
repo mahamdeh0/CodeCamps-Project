@@ -3,10 +3,13 @@ const router = require('express').Router();
 const authcontroller  = require('./controller/Teacher.controller');
 const { teacherSignup, teacherLogin } = require('./controller/Teacher.validation');
 const { validation } = require('../../middlewear/validation');
+const { teacherauth } = require('../../middlewear/auth');
 
 
-router.post('/signUp',validation(teacherSignup),authcontroller.teacherSignup)
+router.post('/signUp',validation(teacherSignup),authcontroller.teacherSignup);
 router.get('/signin',validation(teacherLogin),authcontroller.teacherLogin);
+
+router.post('/addcourse',teacherauth(),authcontroller.addcourse);
 
 
 module.exports=router; 
