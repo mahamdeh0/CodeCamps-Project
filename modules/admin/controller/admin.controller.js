@@ -2,6 +2,7 @@ let bcrypt = require('bcryptjs');
 let jwt = require('jsonwebtoken');
 const { adminModel } = require("../../../DB/model/Admin.model");
 const { courseModel } = require("../../../DB/model/course.model");
+const { articleModel } = require("../../../DB/model/article.model");
 
 const adminSignup = async (req,res)=>{
 
@@ -32,7 +33,6 @@ const adminSignup = async (req,res)=>{
     }
 
 }
-
  
 const adminLogin = async (req,res)=>{
 
@@ -68,6 +68,43 @@ const adminLogin = async (req,res)=>{
 
 }
 
+const addcourse = async (req, res) => {
+    const { courseName, Description, maximum, price, location, present } = req.body;
+    const adminId = req.admin._id; 
+
+    try {
+        const newcourse = new courseModel({ courseName:courseName, Description:Description,maximum:maximum,price:price,location:location,present:present,admin: adminId });
+        const savedcourse = await newcourse.save();
+        if(savedcourse){
+        res.status(201).json({ message: "Course successfully saved" });
+    }else{
+        res.status(500).json({ message: "Error saving course" });
+
+    }
+    } catch (error) {
+        console.error("Error saving course:", error);
+        res.status(500).json({ message: "Error saving course", error: error.message });
+    }
+};
+
+const addarticle = async (req, res) => {
+    const { articleName, Description } = req.body;
+    const adminId = req.admin._id; 
+
+    try {
+        const newartical = new articleModel({ articleName:articleName, Description:Description,admin: adminId });
+        const savedarticle= await newartical.save();
+        if(savedarticle){
+        res.status(201).json({ message: "article successfully saved" });
+    }else{
+        res.status(500).json({ message: "Error saving article" });
+
+    }
+    } catch (error) {
+        console.error("Error saving article:", error);
+        res.status(500).json({ message: "Error saving article", error: error.message });
+    }
+};
 
 const approveCourse = async (req, res) => {
     const { courseId } = req.params;
@@ -88,5 +125,4 @@ const approveCourse = async (req, res) => {
 };
 
 
-
-module.exports={adminSignup,adminLogin,approveCourse}
+module.exports={adminSignup,adminLogin,approveCourse,addcourse,addarticle}

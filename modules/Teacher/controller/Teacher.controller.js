@@ -2,6 +2,7 @@ let bcrypt = require('bcryptjs');
 let jwt = require('jsonwebtoken');
 const { teacherModel } = require("../../../DB/model/Teacher.model");
 const { courseModel } = require("../../../DB/model/course.model");
+const { articleModel } = require("../../../DB/model/article.model");
 
 const teacherSignup = async (req,res)=>{
 
@@ -87,10 +88,27 @@ const addcourse = async (req, res) => {
     }
 };
 
+const addarticle = async (req, res) => {
+    const { articleName, Description } = req.body;
+    const teacherId = req.teacher._id; 
 
+    try {
+        const newartical = new articleModel({ articleName:articleName, Description:Description,teacher: teacherId });
+        const savedarticle= await newartical.save();
+        if(savedarticle){
+        res.status(201).json({ message: "article successfully saved" });
+    }else{
+        res.status(500).json({ message: "Error saving article" });
+
+    }
+    } catch (error) {
+        console.error("Error saving article:", error);
+        res.status(500).json({ message: "Error saving article", error: error.message });
+    }
+};
 
 
 
  
  
-module.exports={teacherSignup ,teacherLogin,addcourse}
+module.exports={teacherSignup ,teacherLogin,addcourse,addarticle}

@@ -39,7 +39,10 @@ const courseSchema = new mongoose.Schema({
     teacher: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'teacher', 
-        required: true
+    },
+    admin: { 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'admin', 
     },
     isApproved: { // New field to indicate admin approval
         type: Boolean,
