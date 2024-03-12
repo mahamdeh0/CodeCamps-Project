@@ -7,6 +7,6 @@ const { validation } = require('../../middlewear/validation');
 
 router.post('/signUp',validation(adminSignup),authcontroller.adminSignup)
 router.get('/signin',validation(adminLogin),authcontroller.adminLogin);
-
+router.patch('/approveCourse/:courseId',authcontroller.approveCourse )
 
 module.exports=router; 
