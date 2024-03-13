@@ -3,6 +3,7 @@ let jwt = require('jsonwebtoken');
 const { teacherModel } = require("../../../DB/model/Teacher.model");
 const { courseModel } = require("../../../DB/model/course.model");
 const { articleModel } = require("../../../DB/model/article.model");
+const { ReviewModel } = require("../../../DB/model/review.model");
 
 const teacherSignup = async (req,res)=>{
 
@@ -34,7 +35,6 @@ const teacherSignup = async (req,res)=>{
 
 }
 
- 
 const teacherLogin = async (req,res)=>{
 
     const{email,password} = req.body;
@@ -107,8 +107,37 @@ const addarticle = async (req, res) => {
     }
 };
 
+const viewTeacherRating = async (req, res) => {
+    const teacherId = req.teacher._id; 
+
+    try {
+        const courses = await courseModel.find({ teacher: teacherId });
+        if (!courses.length) {
+            return res.status(404).json({ message: "No courses found for this teacher." });
+        }
+
+        const courseIds = courses.map(course => course._id);
+
+        const reviews = await ReviewModel.find({ course: { $in: courseIds } });
+
+        if (reviews.length) {
+            const averageRating = reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
+            return res.status(200).json({ 
+                message: "Average rating fetched successfully.",
+                averageRating: averageRating.toFixed(2), 
+                numberOfReviews: reviews.length
+            });
+        } else {
+            return res.status(404).json({ message: "No reviews found for this teacher's courses." });
+        }
+    } catch (error) {
+        console.error("Error fetching teacher rating:", error);
+        res.status(500).json({ message: "Error fetching teacher rating", error: error.message });
+    }
+};
+
 
 
  
  
-module.exports={teacherSignup ,teacherLogin,addcourse,addarticle}
+module.exports={teacherSignup ,teacherLogin,addcourse,addarticle,viewTeacherRating}

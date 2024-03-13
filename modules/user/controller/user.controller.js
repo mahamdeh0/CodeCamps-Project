@@ -34,7 +34,6 @@ const userSignup = async (req,res)=>{
     }
 
 }
-
  
 const userLogin = async (req,res)=>{
 

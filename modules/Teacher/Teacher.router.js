@@ -12,5 +12,7 @@ router.get('/signin',validation(teacherLogin),authcontroller.teacherLogin);
 router.post('/addcourse',teacherauth(),authcontroller.addcourse);
 router.post('/addarticle',teacherauth(),authcontroller.addarticle);
 
+router.get('/viewTeacherRating',teacherauth(),authcontroller.viewTeacherRating);
+
 
 module.exports=router; 
