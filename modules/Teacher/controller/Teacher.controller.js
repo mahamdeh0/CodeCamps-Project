@@ -124,7 +124,7 @@ const viewTeacherRating = async (req, res) => {
             const averageRating = reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
             return res.status(200).json({ 
                 message: "Average rating fetched successfully.",
-                averageRating: averageRating.toFixed(2), 
+                averageRating: averageRating.toFixed(2), // Optional: Rounds to 2 decimal places
                 numberOfReviews: reviews.length
             });
         } else {
@@ -136,8 +136,35 @@ const viewTeacherRating = async (req, res) => {
     }
 };
 
+const viewCourses = async (req, res) => {
+    const teacherId = req.teacher._id;
+
+    try {
+        const courses = await courseModel.find({ teacher: teacherId });
+
+        if (courses.length > 0) {
+            res.status(200).json({
+                message: "Courses fetched successfully.",
+                courses: courses.map(course => ({
+                    id: course._id,
+                    name: course.courseName,
+                    description: course.Description,
+                    maximum: course.maximum,
+                    price: course.price,
+                    location: course.location,
+                    present: course.present
+                }))
+            });
+        } else {
+            res.status(404).json({ message: "No courses found for this instructor." });
+        }
+    } catch (error) {
+        console.error("Error fetching instructor courses:", error);
+        res.status(500).json({ message: "Error fetching instructor courses", error: error.message });
+    }
+};
 
 
  
  
-module.exports={teacherSignup ,teacherLogin,addcourse,addarticle,viewTeacherRating}
+module.exports={teacherSignup ,teacherLogin,addcourse,addarticle,viewTeacherRating,viewCourses}

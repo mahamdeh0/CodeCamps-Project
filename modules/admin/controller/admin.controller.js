@@ -4,6 +4,8 @@ const { adminModel } = require("../../../DB/model/Admin.model");
 const { courseModel } = require("../../../DB/model/course.model");
 const { articleModel } = require("../../../DB/model/article.model");
 const { ProblemModel } = require("../../../DB/model/problem.model");
+const { userModel } = require("../../../DB/model/user.model");
+const { teacherModel } = require("../../../DB/model/Teacher.model");
 
 const adminSignup = async (req,res)=>{
 
@@ -145,4 +147,30 @@ const addproblem = async (req, res) => {
     }
 };
 
-module.exports={adminSignup,adminLogin,approveCourse,addcourse,addarticle,addproblem}
+const viewAllUsersAndTeachersAndCourses = async (req, res) => {
+    try {
+        const users = await userModel.find({}, 'userName _id').lean(); 
+        const teachers = await teacherModel.find({}, 'teacherName _id').lean();
+        const courses = await courseModel.find({}, 'courseName _id').lean();
+
+        const summary = {
+            totalUsers: users.length,
+            totalTeachers: teachers.length,
+            totalcourse: courses.length,
+            users: users.map(user => ({ id: user._id, name: user.userName })),
+            teachers: teachers.map(teacher => ({ id: teacher._id, name: teacher.teacherName })),
+            courses: courses.map(course => ({ id: course._id, name: course.courseName }))
+
+        };
+
+        res.status(200).json(summary);
+    } catch (error) {
+        console.error("Error fetching users and teachers summary:", error);
+        res.status(500).json({ message: "Error retrieving data", error: error.message });
+    }
+};
+
+
+
+
+module.exports={adminSignup,adminLogin,approveCourse,addcourse,addarticle,addproblem,viewAllUsersAndTeachersAndCourses}

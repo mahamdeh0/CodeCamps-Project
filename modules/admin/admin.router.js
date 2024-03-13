@@ -14,6 +14,7 @@ router.post('/addcourse',adminauth(),authcontroller.addcourse);
 router.post('/addarticle',adminauth(),authcontroller.addarticle);
 
 router.post('/addProblem',adminauth(), authcontroller.addproblem)
+router.get('/viewAllUsersAndTeachersAndCourses',adminauth(),authcontroller.viewAllUsersAndTeachersAndCourses);
 
 
 
