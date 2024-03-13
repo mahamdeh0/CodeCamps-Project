@@ -114,5 +114,27 @@ const viewSubscribedCourses = async (req, res) => {
     }
 }
 
+const deleteCourse = async(req, res) => {
 
-module.exports={userSignup,userLogin,subscribeToCourse,viewSubscribedCourses}
+    const courseId = req.params.id;
+    const userId = req.user._id;
+
+    try {
+        const deletedSubscription = await SubscriptionModel.findOneAndDelete({
+            course: courseId,
+            user: userId, 
+        });
+
+        if (!deletedSubscription) {
+            return res.status(404).json({ message: "Subscription not found or already deleted" });
+        }
+
+        res.json({ message: "Subscription deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+
+
+module.exports={userSignup,userLogin,subscribeToCourse,viewSubscribedCourses,deleteCourse}

@@ -11,6 +11,7 @@ router.get('/signin',authcontroller.userLogin);
 
 router.post('/subscribeToCourse',userauth(),authcontroller.subscribeToCourse)
 router.get('/viewSubscribedCourses',userauth(),authcontroller.viewSubscribedCourses);
+router.delete('/delete/:id',userauth(),authcontroller.deleteCourse)
 
 
 module.exports=router; 
