@@ -14,6 +14,7 @@ router.get('/viewSubscribedCourses',userauth(),authcontroller.viewSubscribedCour
 router.delete('/delete/:id',userauth(),authcontroller.deleteCourse)
 
 router.post('/submitReview',userauth(),authcontroller.submitReview)
+router.post('/submitSolution/:problemId',userauth(),authcontroller.submitSolution)
 
 
 module.exports=router; 

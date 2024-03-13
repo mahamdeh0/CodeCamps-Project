@@ -12,4 +12,10 @@ router.patch('/approveCourse/:courseId',authcontroller.approveCourse )
 
 router.post('/addcourse',adminauth(),authcontroller.addcourse);
 router.post('/addarticle',adminauth(),authcontroller.addarticle);
+
+router.post('/addProblem',adminauth(), authcontroller.addproblem)
+
+
+
+
 module.exports=router; 

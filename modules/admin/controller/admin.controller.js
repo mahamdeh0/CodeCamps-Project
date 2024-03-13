@@ -3,6 +3,7 @@ let jwt = require('jsonwebtoken');
 const { adminModel } = require("../../../DB/model/Admin.model");
 const { courseModel } = require("../../../DB/model/course.model");
 const { articleModel } = require("../../../DB/model/article.model");
+const { ProblemModel } = require("../../../DB/model/problem.model");
 
 const adminSignup = async (req,res)=>{
 
@@ -124,5 +125,24 @@ const approveCourse = async (req, res) => {
     }
 };
 
+const addproblem = async (req, res) => {
+    const { description, answer } = req.body;
 
-module.exports={adminSignup,adminLogin,approveCourse,addcourse,addarticle}
+    try {
+        const newProblem = new ProblemModel({
+            description,
+            answer,
+        });
+
+        const savedProblem = await newProblem.save();
+        res.status(201).json({
+            message: "Problem added successfully",
+            problem: savedProblem
+        });
+    } catch (error) {
+        console.error('Error adding problem:', error);
+        res.status(500).json({ message: "Error adding problem", error: error.message });
+    }
+};
+
+module.exports={adminSignup,adminLogin,approveCourse,addcourse,addarticle,addproblem}

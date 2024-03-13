@@ -4,6 +4,7 @@ const { userModel } = require("../../../DB/model/user.model");
 const { courseModel } = require("../../../DB/model/course.model");
 const { SubscriptionModel } = require("../../../DB/model/subscription.model");
 const { ReviewModel } = require("../../../DB/model/review.model");
+const { ProblemModel } = require("../../../DB/model/problem.model");
 
 const userSignup = async (req,res)=>{
 
@@ -169,6 +170,69 @@ const submitReview = async (req, res) => {
     }
 };
 
+const updateUserActivity = async (userId) => {
+    try {
+        const user = await userModel.findById(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        user.points += 10;
+
+        const now = new Date();
+        if (user.streakStartTime) {
+            const timeDiff = now - user.streakStartTime;
+            const hoursDiff = timeDiff / (1000 * 60 * 60);
+
+            if (hoursDiff <= 24) {
+                user.streakLength += 1;
+            } else if (hoursDiff > 24 && hoursDiff <= 48) {
+                user.streakStartTime = now; 
+            } else {
+                user.streakLength = 1;
+                user.streakStartTime = now;
+            }
+        } else {
+            user.streakLength = 1;
+            user.streakStartTime = now;
+        }
+
+        await user.save();
+
+        return { points: user.points, streakLength: user.streakLength };
+    } catch (error) {
+        console.error('Error updating user activity:', error);
+        throw error;
+    }
+};
+
+const submitSolution = async (req, res) => {
+
+    const { problemId } = req.params;
+    const { solution } = req.body;
+    const userId = req.user._id;
+
+    try {
+        const problem = await ProblemModel.findById(problemId);
+        if (!problem) {
+            return res.status(404).json({ message: "Problem not found" });
+        }
+
+        if (problem.answer === solution) {
+            const activityUpdate = await updateUserActivity(userId);
+            res.status(200).json({ 
+                message: "Correct solution!",
+                points: activityUpdate.points,
+                streakLength: activityUpdate.streakLength
+            });
+        } else {
+            res.status(400).json({ message: "Incorrect solution. Please try again." });
+        }
+    } catch (error) {
+        console.error('Error submitting solution:', error);
+        res.status(500).json({ message: "Error processing your solution", error: error.message });
+    }
+};
 
 
-module.exports={userSignup,userLogin,subscribeToCourse,viewSubscribedCourses,deleteCourse,submitReview}
+module.exports={userSignup,userLogin,subscribeToCourse,viewSubscribedCourses,deleteCourse,submitReview,submitSolution}
