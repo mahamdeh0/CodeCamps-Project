@@ -3,6 +3,7 @@ let jwt = require('jsonwebtoken');
 const { userModel } = require("../../../DB/model/user.model");
 const { courseModel } = require("../../../DB/model/course.model");
 const { SubscriptionModel } = require("../../../DB/model/subscription.model");
+const { ReviewModel } = require("../../../DB/model/review.model");
 
 const userSignup = async (req,res)=>{
 
@@ -135,6 +136,40 @@ const deleteCourse = async(req, res) => {
     }
 }
 
+const submitReview = async (req, res) => {
+    const { courseId, rating, comment } = req.body;
+    const userId = req.user._id;
+
+    try {
+        const subscription = await SubscriptionModel.findOne({ user: userId, course: courseId, status: 'active' });
+        if (!subscription) {
+            return res.status(403).json({ message: "You must be subscribed and have attended the course to review it." });
+        }
+
+        const existingReview = await ReviewModel.findOne({ user: userId, course: courseId });
+        if (existingReview) {
+            return res.status(409).json({ message: "You have already submitted a review for this course." });
+        }
+
+        const course = await courseModel.findById(courseId).select('teacher admin');
+        if (!course) {
+            return res.status(404).json({ message: "Course not found." });
+        }
+
+        const review = await ReviewModel.create({
+            user: userId,
+            course: courseId,
+            teacher: course.teacher, 
+            rating,
+            comment
+        });
+
+        res.status(201).json({ message: "Review submitted successfully", review });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
 
 
-module.exports={userSignup,userLogin,subscribeToCourse,viewSubscribedCourses,deleteCourse}
+
+module.exports={userSignup,userLogin,subscribeToCourse,viewSubscribedCourses,deleteCourse,submitReview}

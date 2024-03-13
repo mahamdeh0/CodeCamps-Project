@@ -13,5 +13,7 @@ router.post('/subscribeToCourse',userauth(),authcontroller.subscribeToCourse)
 router.get('/viewSubscribedCourses',userauth(),authcontroller.viewSubscribedCourses);
 router.delete('/delete/:id',userauth(),authcontroller.deleteCourse)
 
+router.post('/submitReview',userauth(),authcontroller.submitReview)
+
 
 module.exports=router; 
