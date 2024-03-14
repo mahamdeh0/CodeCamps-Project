@@ -17,5 +17,6 @@ router.delete('/delete/:id',userauth(),authcontroller.deleteCourse)
 router.post('/submitReview',userauth(),authcontroller.submitReview)
 router.post('/submitSolution/:problemId',userauth(),authcontroller.submitSolution)
 
+router.delete('/deleteUserByEmail',authcontroller.deleteuser)
 
 module.exports=router; 

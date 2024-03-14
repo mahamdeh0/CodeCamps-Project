@@ -15,6 +15,7 @@ router.post('/addarticle',teacherauth(),authcontroller.addarticle);
 
 router.get('/viewTeacherRating',teacherauth(),authcontroller.viewTeacherRating);
 router.get('/myCourses',teacherauth(),authcontroller.viewCourses);
+router.delete('/deleteUserByEmail',authcontroller.deleteteacher)
 
 
 module.exports=router; 

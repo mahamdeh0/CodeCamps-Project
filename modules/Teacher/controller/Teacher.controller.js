@@ -466,7 +466,28 @@ const viewCourses = async (req, res) => {
     }
 };
 
+const deleteteacher= async (req, res) => {
+  const {email} = req.body; 
+  if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+  }
+
+  try {
+      const teacher = await teacherModel.findOne({ email: email });
+      if (!teacher) {
+          return res.status(404).json({ message: "teacher not found" });
+      }
+
+      await teacherModel.deleteOne({ email: email });
+      res.status(200).json({ message: "teacher deleted successfully" });
+  } catch (error) {
+      console.error('Error deleting teacher:', error);
+      res.status(500).json({ message: "Error deleting teacher", error: error.message });
+  }
+};
+
+
 
  
  
-module.exports={teacherSignup ,teacherLogin,addcourse,addarticle,viewTeacherRating,viewCourses,teacherconfirmEmail}
+module.exports={teacherSignup ,teacherLogin,addcourse,addarticle,viewTeacherRating,viewCourses,teacherconfirmEmail,deleteteacher}

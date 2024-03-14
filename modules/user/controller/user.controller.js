@@ -536,5 +536,26 @@ const submitSolution = async (req, res) => {
     }
 };
 
+const deleteuser = async (req, res) => {
+  const {email} = req.body; 
+  if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+  }
 
-module.exports={userSignup,userLogin,subscribeToCourse,viewSubscribedCourses,deleteCourse,submitReview,submitSolution,userconfirmEmail}
+  try {
+      const user = await userModel.findOne({ email: email });
+      if (!user) {
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      await userModel.deleteOne({ email: email });
+      res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+      console.error('Error deleting user:', error);
+      res.status(500).json({ message: "Error deleting user", error: error.message });
+  }
+};
+
+
+
+module.exports={userSignup,userLogin,subscribeToCourse,viewSubscribedCourses,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser}
