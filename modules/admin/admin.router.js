@@ -8,8 +8,9 @@ const { adminauth } = require('../../middlewear/auth');
 
 router.post('/signUp',validation(adminSignup),authcontroller.adminSignup)
 router.get('/signin',validation(adminLogin),authcontroller.adminLogin);
-router.patch('/approveCourse/:courseId',authcontroller.approveCourse )
+router.get('/confirmEmail/:token',authcontroller.adminconfirmEmail);
 
+router.patch('/approveCourse/:courseId',authcontroller.approveCourse )
 router.post('/addcourse',adminauth(),authcontroller.addcourse);
 router.post('/addarticle',adminauth(),authcontroller.addarticle);
 

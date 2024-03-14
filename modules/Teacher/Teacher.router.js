@@ -8,6 +8,7 @@ const { teacherauth } = require('../../middlewear/auth');
 
 router.post('/signUp',validation(teacherSignup),authcontroller.teacherSignup);
 router.get('/signin',validation(teacherLogin),authcontroller.teacherLogin);
+router.get('/confirmEmail/:token',authcontroller.teacherconfirmEmail);
 
 router.post('/addcourse',teacherauth(),authcontroller.addcourse);
 router.post('/addarticle',teacherauth(),authcontroller.addarticle);

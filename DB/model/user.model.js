@@ -36,6 +36,11 @@ const userSchema = new mongoose.Schema({
     streakLength: {
         type: Number,
         default: 0
+    },
+    confirmEmail:{
+
+        type:Boolean,
+        default:false
     }
 }, { timestamps: true });
 

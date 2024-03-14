@@ -27,9 +27,12 @@ const adminSchema = new mongoose.Schema({
         default:'male'
     },
     profilePic:{
-
         type:String
+    },
+    confirmEmail:{
 
+        type:Boolean,
+        default:false
     }
 
 

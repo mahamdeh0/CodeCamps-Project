@@ -42,6 +42,11 @@ const teacherSchema = new mongoose.Schema({
 
         type:String
 
+    },
+    confirmEmail:{
+
+        type:Boolean,
+        default:false
     }
 
 

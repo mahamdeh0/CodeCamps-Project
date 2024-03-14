@@ -8,6 +8,7 @@ const { userauth } = require('../../middlewear/auth');
 
 router.post('/signUp',validation(userSignup),authcontroller.userSignup)
 router.get('/signin',authcontroller.userLogin);
+router.get('/confirmEmail/:token',authcontroller.userconfirmEmail);
 
 router.post('/subscribeToCourse',userauth(),authcontroller.subscribeToCourse)
 router.get('/viewSubscribedCourses',userauth(),authcontroller.viewSubscribedCourses);

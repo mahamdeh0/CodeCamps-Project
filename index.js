@@ -13,7 +13,7 @@ app.use(`${BaseUrl}/Teacher`,appRouter.TeacherRouter);
 app.use(`${BaseUrl}/User`,appRouter.userRouter);
 app.use(`${BaseUrl}/Admin`,appRouter.adminRouter);
 
-app.get('*',(req,res)=>{
+app.use('*',(req,res)=>{
     res.json({message:"404 Page Not Found"})
 });    
      
