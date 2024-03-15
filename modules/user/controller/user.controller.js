@@ -6,6 +6,8 @@ const { messageModel } = require("../../../DB/model/message.model");
 const { SubscriptionModel } = require("../../../DB/model/subscription.model");
 const { ReviewModel } = require("../../../DB/model/review.model");
 const { ProblemModel } = require("../../../DB/model/problem.model");
+const { articleModel } = require("../../../DB/model/article.model");
+const { BookModel } = require("../../../DB/model/book.model");
 const { sendEmail } = require('../../../services/SendEmail');
 
 const userSignup = async (req,res)=>{
@@ -418,6 +420,36 @@ const viewSubscribedCourses = async (req, res) => {
     }
 }
 
+const viwebooks =  async (req, res) => {
+  try {
+    const { bookId } = req.params;
+    const book = await BookModel.findById(bookId);
+    if (!book || !book.pdfContent) {
+      return res.status(404).json({ message: "Book or PDF content not found" });
+    }
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename="${book.title}.pdf"`,
+    });
+    res.send(book.pdfContent);
+  } catch (error) {
+    console.error("Error viewing book:", error);
+    res.status(500).json({ message: "Error viewing book", error: error.message });
+  }
+}
+
+const viwearticle = async (req, res) => {
+  try {
+      const articles = await articleModel.find()
+                             .populate('teacher', 'name') 
+                             .populate('admin', 'name'); 
+      res.json(articles);
+  } catch (error) {
+      console.error("Error fetching articles:", error);
+      res.status(500).json({ message: "Error fetching articles", error: error.message });
+  }
+}
+
 const deleteCourse = async(req, res) => {
 
     const courseId = req.params.id;
@@ -471,7 +503,7 @@ const submitReview = async (req, res) => {
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
-};
+}
 
 const updateUserActivity = async (userId) => {
     try {
@@ -507,7 +539,7 @@ const updateUserActivity = async (userId) => {
         console.error('Error updating user activity:', error);
         throw error;
     }
-};
+}
 
 const submitSolution = async (req, res) => {
 
@@ -535,7 +567,7 @@ const submitSolution = async (req, res) => {
         console.error('Error submitting solution:', error);
         res.status(500).json({ message: "Error processing your solution", error: error.message });
     }
-};
+}
 
 const sendMessageToTeacher = async (req, res) => {
   const { teacherId, message } = req.body;
@@ -553,9 +585,9 @@ const sendMessageToTeacher = async (req, res) => {
   } catch (error) {
       res.status(500).json({ message: "Failed to send message", error: error.message });
   }
-};
+}
 
-async function getConversationHistory(req, res) {
+const getConversationHistory = async  (req, res)=> {
   const { userId, teacherId } = req.params;
 
   try {
@@ -594,7 +626,7 @@ const deleteuser = async (req, res) => {
       console.error('Error deleting user:', error);
       res.status(500).json({ message: "Error deleting user", error: error.message });
   }
-};
+}
 
 
-module.exports={sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viewSubscribedCourses,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}
+module.exports={sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}

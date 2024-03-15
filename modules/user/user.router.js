@@ -21,7 +21,8 @@ router.post('/submitSolution/:problemId',userauth(),authcontroller.submitSolutio
 router.post('/sendMessageToTeacher', userauth(), authcontroller.sendMessageToTeacher);
 router.get('/conversationHistory/:userId/:teacherId', userauth(), authcontroller.getConversationHistory);
 
-
+router.get('/booksview/:bookId',userauth(), authcontroller.viwebooks);
+router.get('/viewarticles', authcontroller.viwearticle);
 
 router.delete('/deleteUserByEmail',authcontroller.deleteuser)
 

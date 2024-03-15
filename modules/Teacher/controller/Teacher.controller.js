@@ -5,7 +5,9 @@ const { courseModel } = require("../../../DB/model/course.model");
 const { articleModel } = require("../../../DB/model/article.model");
 const { ReviewModel } = require("../../../DB/model/review.model");
 const { messageModel } = require("../../../DB/model/message.model");
+const { BookModel } = require("../../../DB/model/book.model");
 const { sendEmail } = require('../../../services/SendEmail');
+
 
 const teacherSignup = async (req,res)=>{
 
@@ -390,7 +392,7 @@ const addcourse = async (req, res) => {
         res.status(500).json({ message: "Error saving course", error: error.message });
     }
 };
-
+ 
 const addarticle = async (req, res) => {
     const { articleName, Description } = req.body;
     const teacherId = req.teacher._id; 
@@ -409,6 +411,28 @@ const addarticle = async (req, res) => {
         res.status(500).json({ message: "Error saving article", error: error.message });
     }
 };
+
+const addBook = async (req, res) => {
+  try {
+      const { title, author, publicationYear } = req.body;
+      const teacherId = req.teacher._id;
+      const pdfContent = req.file.buffer; 
+
+      const newBook = new BookModel({ 
+          title,
+          author,
+          publicationYear,
+          pdfContent,
+          teacher: teacherId
+      });
+
+      await newBook.save();
+      res.status(201).json({ message: "Book successfully added" });
+  } catch (error) {
+      console.error("Error adding book:", error);
+      res.status(500).json({ message: "Error adding book", error: error.message });
+  }
+}; 
 
 const viewTeacherRating = async (req, res) => {
     const teacherId = req.teacher._id; 
@@ -531,4 +555,4 @@ const deleteteacher= async (req, res) => {
 
  
  
-module.exports={teacherSignup ,teacherLogin,addcourse,addarticle,viewTeacherRating,viewCourses,teacherconfirmEmail,deleteteacher,getConversationHistory,sendMessageToUser}
+module.exports={teacherSignup ,teacherLogin,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,deleteteacher,getConversationHistory,sendMessageToUser}
