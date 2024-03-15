@@ -41,6 +41,11 @@ const userSchema = new mongoose.Schema({
 
         type:Boolean,
         default:false
+    },
+    sendcode:{
+        type: String,
+        default:null
+
     }
 }, { timestamps: true });
 
