@@ -3,31 +3,25 @@ const mongoose = require('mongoose');
 const teacherSchema = new mongoose.Schema({
 
     teacherName:{
-
         type:String,
         required:true
     },
     email:{
-
         type:String,
         required:true,
         unique:true
     },
     password:{
-
         type:String,
         required:true
     },
     Experience:{
-
         type:String,
     },
     nationality:{
-
         type:String,
     },
     achievements:{
-
         type:String,
     },
     age:{
@@ -39,19 +33,15 @@ const teacherSchema = new mongoose.Schema({
         default:'male'
     },
     phone:{
-
         type:String
-
     },
     confirmEmail:{
-
         type:Boolean,
         default:false
     },
     sendcode:{
         type: String,
         default:null
-
     }
 
 },{timestamps:true});

@@ -12,5 +12,4 @@ const problemSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const ProblemModel = mongoose.model('Problem', problemSchema);
-
 module.exports = { ProblemModel};

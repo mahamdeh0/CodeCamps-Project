@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    // Existing fields...
     userName: {
         type: String,
         required: true
@@ -38,14 +37,12 @@ const userSchema = new mongoose.Schema({
         default: 0
     },
     confirmEmail:{
-
         type:Boolean,
         default:false
     },
     sendcode:{
         type: String,
         default:null
-
     }
 }, { timestamps: true });
 

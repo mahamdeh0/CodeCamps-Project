@@ -3,12 +3,10 @@ const mongoose = require('mongoose');
 const articleSchema = new mongoose.Schema({
 
     articleName:{
-
         type:String,
         required:true
     },
     Description:{
-
         type:String,
         required:true,
     },  

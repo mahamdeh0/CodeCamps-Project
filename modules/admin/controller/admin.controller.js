@@ -10,7 +10,6 @@ const { sendEmail } = require('../../../services/SendEmail');
 
 const adminSignup = async (req,res)=>{
 
-
     const {name,email,password,age,gender}= req.body;
 
     try{
@@ -18,7 +17,7 @@ const adminSignup = async (req,res)=>{
 
     if(admin){
 
-        res.status(409).json({message:"email exist"})
+        res.status(409).json({message:"Email already exists"})
     }else{
 
         const hashPassword = await bcrypt.hash(password,parseInt(process.env.saltRound));
@@ -26,7 +25,7 @@ const adminSignup = async (req,res)=>{
         const savedAdmin = await newAdmin.save();
 
         if(!savedAdmin){
-            res.status(400).json({message:"fail to signup"});
+            res.status(400).json({message:"Registration failed"});
         }else{
 
             const token = jwt.sign({id:savedAdmin._id},process.env.logintoken,{expiresIn:'48h'} );
@@ -294,15 +293,13 @@ const adminSignup = async (req,res)=>{
 </body>
 </html>`;
 
-
             await sendEmail(email, 'confirm Email', message)
 
-            res.status(201).json({message:"done signup"})
+            res.status(201).json({message:"An account has been created successfully"})
         }
  
-    }}catch{
-        res.status(400).json({message:"error catch"});
-
+    }}catch(error){
+        res.status(400).json({message:"error catch", error: error.message });
 
     }
 }
@@ -318,7 +315,7 @@ const adminLogin = async (req,res)=>{
     }else{
 
         if(!admin.confirmEmail){
-            res.status(400).json({message:"please confirm your email first"})
+            res.status(400).json({message:"Please confirm your email first"})
     
         }else{
 
@@ -367,8 +364,8 @@ const adminconfirmEmail = async(req,res)=>{
             res.status(200).json({message:"email confirmed Thx"})
 
         }
-    }}catch{
-        res.status(400).json({message:"error catch"})
+    }}catch(error){
+        res.status(400).json({message:"error catch", error: error.message})
 
     }
 

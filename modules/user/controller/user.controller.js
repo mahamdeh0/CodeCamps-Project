@@ -13,7 +13,6 @@ const { nanoid } = require('nanoid');
 
 const userSignup = async (req,res)=>{
 
-
     const {name,email,password,age,gender}= req.body;
 
     try{
@@ -29,10 +28,11 @@ const userSignup = async (req,res)=>{
         const savedUser = await newUser.save();
 
         if(!savedUser){
-            res.status(400).json({message:"fail to signup"});
+            res.status(400).json({message:"Failed to register"});
         }else{
 
             const token = jwt.sign({id:savedUser._id},process.env.logintoken,{expiresIn:'48h'} );
+            const code = nanoid(6);
 
             let message =  `
             <!DOCTYPE html>
@@ -220,6 +220,13 @@ const userSignup = async (req,res)=>{
                         <td align="center" bgcolor="#1a82e2" style="border-radius: 6px;">
                           <a href="${req.protocol}://${req.headers.host}${process.env.BaseUrl}/User/confirmEmail/${token}" target="_blank" style="display: inline-block; padding: 16px 36px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 6px;">Verify Email</a>
                         </td>
+                        <tr>
+                        <h4>You can also use the code</h4>
+                        </tr>
+                        <tr>
+                        <td style="background-color: rgb(0, 210, 244); padding: 12px 35px; border-radius: 50px;" align="center" class="ctaButton"> <a href="#" style="color:#fff;font-family:Poppins,Helvetica,Arial,sans-serif;font-size:13px;font-weight:600;font-style:normal;letter-spacing:1px;line-height:20px;text-decoration:none;display:block" target="_blank" class="text">code :${code}</a>
+                        </td>
+                      </tr>
                       </tr>
                     </table>
                   </td>
@@ -297,16 +304,14 @@ const userSignup = async (req,res)=>{
 </body>
 </html>`;
 
-
             await sendEmail(email, 'confirm Email', message)
+            const userupdate = await userModel.findOneAndUpdate({email:email},{sendcode:code});
 
-            res.status(201).json({message:"done signup"})
+            res.status(201).json({message:"An account has been created successfully"})
         }
  
-    }}catch{
-        res.status(400).json({message:"error catch"});
-
-
+    }}catch(error){
+      res.status(500).json({ message: "Error ", error: error.message });
     }
 }
  
@@ -331,21 +336,15 @@ const userLogin = async (req,res)=>{
 
             res.status(400).json({message:"invalid password"});
 
-
         }else{
+
             const token = jwt.sign({id:user._id},process.env.logintoken,{expiresIn:60*60*24});
-
-
             res.status(200).json({message:"done signin ",token});
-
         }}
 
     }}catch{
-            res.json({message:"done signin ",token});
-
+            res.status(500).json({message:"done signin ",token});
     }
-
-
 }
 
 const userconfirmEmail = async(req,res)=>{
@@ -367,13 +366,30 @@ const userconfirmEmail = async(req,res)=>{
         }else{
 
             res.status(200).json({message:"email confirmed Thx"})
-
         }
     }}catch{
-        res.status(400).json({message:"error catch"})
-
+        res.status(500).json({message:"error catch"})
     }
+}
 
+const userconfirmEmailbycode = async(req,res)=>{
+
+  const {code}=req.body;
+
+  try{
+
+    const user = await userModel.findOneAndUpdate({sendcode:code,confirmEmail:false},{confirmEmail:true});
+    const userupdate = await userModel.findOneAndUpdate({sendcode:code},{sendcode:null});
+    
+    if(!user){
+            res.status(400).json({message:"account already confirmed"})
+        }else{
+
+            res.status(200).json({message:"email confirmed Thx"})
+        }
+    }catch(error){
+      res.status(500).json({ message: "Error ", error: error.message });
+    }
 }
 
 const subscribeToCourse = async (req, res) => {
@@ -394,7 +410,7 @@ const subscribeToCourse = async (req, res) => {
         const subscription = await SubscriptionModel.create({ user: userId, course: courseId });
         res.status(201).json({ message: "Subscription successful", subscription });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -411,13 +427,12 @@ const viewSubscribedCourses = async (req, res) => {
         const subscribedCourses = subscriptions.map(subscription => {
             return {
                 courseId: subscription.course._id,
-
             };
         });
 
         res.status(200).json({ subscribedCourses });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -466,7 +481,8 @@ const deleteCourse = async(req, res) => {
             return res.status(404).json({ message: "Subscription not found or already deleted" });
         }
 
-        res.json({ message: "Subscription deleted successfully" });
+        res.status(200).json({ message: "Subscription deleted successfully" });
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -502,7 +518,7 @@ const submitReview = async (req, res) => {
 
         res.status(201).json({ message: "Review submitted successfully", review });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -639,32 +655,30 @@ const forgetpassword = async(req,res)=>{
   const userupdate = await userModel.findOneAndUpdate({email:email},{sendcode:null});
 
   if(!user){
-      res.json({message:'fail'}) 
+      res.status(404).json({message:'Password update failed'}) 
   }else{
 
-      res.json({message:'done update'})
+      res.status(200).json({message:'The password has been updated successfully'})
 
   }}catch{
 
-      res.status(500).json({messge:'catch'}) 
+      res.status(500).status(500).json({messge:'catch'}) 
   }
-
-  
 }
 
 const sendcode = async (req,res)=>{
 
+  try{
   const {email}= req.body;
   const user = await userModel.findOne({email});
   if(!user){
 
-      res.json({message:'invalid email'});
+      res.status(404).json({message:'invalid email'});
 
   }else{
 
       const code = nanoid(6);
 
-      
       let message = `<!-- © 2018 Shift Technologies. All rights reserved. -->
       <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout:fixed;background-color:#f9f9f9" id="bodyTable">
         <tbody>
@@ -843,17 +857,16 @@ const sendcode = async (req,res)=>{
       </table>`;
 
       await sendEmail(email,'Update password',message);
-      updateuser = await userModel.updateOne({_id:user._id},{sendcode:code});
+      const updateuser = await userModel.updateOne({_id:user._id},{sendcode:code});
       if(!updateuser){
-
-          res.json({message:'invalid code'});
-
+          res.status(404).json({message:'invalid code'});
       }else{
-
-          res.json({message:'done code'});
-
+          res.status(200).json({message:'The code has been sent successfully'});
       }
+  }}catch(error){
+
+    res.status(500).json({message:'error catch', error: error.message});
   }
 }
 
-module.exports={sendcode,forgetpassword,sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}
+module.exports={userconfirmEmailbycode,sendcode,forgetpassword,sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}
