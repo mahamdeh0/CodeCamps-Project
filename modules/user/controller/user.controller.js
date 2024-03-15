@@ -2,6 +2,7 @@ let bcrypt = require('bcryptjs');
 let jwt = require('jsonwebtoken');
 const { userModel } = require("../../../DB/model/user.model");
 const { courseModel } = require("../../../DB/model/course.model");
+const { messageModel } = require("../../../DB/model/message.model");
 const { SubscriptionModel } = require("../../../DB/model/subscription.model");
 const { ReviewModel } = require("../../../DB/model/review.model");
 const { ProblemModel } = require("../../../DB/model/problem.model");
@@ -536,6 +537,45 @@ const submitSolution = async (req, res) => {
     }
 };
 
+const sendMessageToTeacher = async (req, res) => {
+  const { teacherId, message } = req.body;
+  const userId = req.user._id;
+
+  try {
+      const newMessage = new messageModel({ 
+          sender: userId, 
+          receiver: teacherId, 
+          onModel: 'teacher', 
+          message 
+      });
+      await newMessage.save();
+      res.status(201).json({ message: "Message sent successfully" });
+  } catch (error) {
+      res.status(500).json({ message: "Failed to send message", error: error.message });
+  }
+};
+
+async function getConversationHistory(req, res) {
+  const { userId, teacherId } = req.params;
+
+  try {
+      const conversationMessages = await messageModel.find({
+          $or: [
+              { sender: userId, receiver: teacherId, onModel: 'teacher' },
+              { sender: teacherId, receiver: userId, onModel: 'user' }
+          ]
+      }).sort({ createdAt: 'asc' });
+
+      res.status(200).json(conversationMessages);
+  } catch (error) {
+      console.error(`Error fetching conversation history: ${error.message}`);
+      res.status(500).send({
+          message: "Unable to retrieve conversation history due to a server error.",
+          error: error.message
+      });
+  }
+}
+
 const deleteuser = async (req, res) => {
   const {email} = req.body; 
   if (!email) {
@@ -557,5 +597,4 @@ const deleteuser = async (req, res) => {
 };
 
 
-
-module.exports={userSignup,userLogin,subscribeToCourse,viewSubscribedCourses,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser}
+module.exports={sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viewSubscribedCourses,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}

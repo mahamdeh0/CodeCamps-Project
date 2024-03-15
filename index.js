@@ -16,6 +16,8 @@ app.use(`${BaseUrl}/Admin`,appRouter.adminRouter);
 app.use('*',(req,res)=>{
     res.json({message:"404 Page Not Found"})
 });    
+
+
      
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 

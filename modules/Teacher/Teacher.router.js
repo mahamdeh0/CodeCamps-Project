@@ -16,6 +16,8 @@ router.post('/addarticle',teacherauth(),authcontroller.addarticle);
 router.get('/viewTeacherRating',teacherauth(),authcontroller.viewTeacherRating);
 router.get('/myCourses',teacherauth(),authcontroller.viewCourses);
 router.delete('/deleteUserByEmail',authcontroller.deleteteacher)
+router.post('/sendMessageToUser', teacherauth(), authcontroller.sendMessageToUser);
+router.get('/conversationHistory/:teacherId/:userId', teacherauth(), authcontroller.getConversationHistory);
 
 
 module.exports=router; 

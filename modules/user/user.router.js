@@ -17,6 +17,12 @@ router.delete('/delete/:id',userauth(),authcontroller.deleteCourse)
 router.post('/submitReview',userauth(),authcontroller.submitReview)
 router.post('/submitSolution/:problemId',userauth(),authcontroller.submitSolution)
 
+
+router.post('/sendMessageToTeacher', userauth(), authcontroller.sendMessageToTeacher);
+router.get('/conversationHistory/:userId/:teacherId', userauth(), authcontroller.getConversationHistory);
+
+
+
 router.delete('/deleteUserByEmail',authcontroller.deleteuser)
 
 module.exports=router; 

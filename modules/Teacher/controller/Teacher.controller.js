@@ -4,6 +4,7 @@ const { teacherModel } = require("../../../DB/model/Teacher.model");
 const { courseModel } = require("../../../DB/model/course.model");
 const { articleModel } = require("../../../DB/model/article.model");
 const { ReviewModel } = require("../../../DB/model/review.model");
+const { messageModel } = require("../../../DB/model/message.model");
 const { sendEmail } = require('../../../services/SendEmail');
 
 const teacherSignup = async (req,res)=>{
@@ -466,6 +467,46 @@ const viewCourses = async (req, res) => {
     }
 };
 
+const sendMessageToUser = async (req, res) => {
+  const { userId, message } = req.body;
+  const teacherId = req.teacher._id;
+
+  try {
+      const newMessage = new messageModel({ 
+          sender: teacherId, 
+          receiver: userId, 
+          onModel: 'user', 
+          message 
+      });
+      await newMessage.save();
+      res.status(201).json({ message: "Message sent successfully" });
+  } catch (error) {
+      res.status(500).json({ message: "Failed to send message", error: error.message });
+  }
+};
+
+async function getConversationHistory(req, res) {
+  const { teacherId, userId } = req.params;
+
+  try {
+      const conversationMessages = await messageModel.find({
+          $or: [
+
+              { sender: teacherId, receiver: userId, onModel: 'user' },
+              { sender: userId, receiver: teacherId, onModel: 'teacher' }]
+
+      }).sort({ createdAt: 'asc' });
+
+      res.status(200).json(conversationMessages);
+  } catch (error) {
+      console.error(`Error fetching conversation history: ${error.message}`);
+      res.status(500).send({
+          message: "Unable to retrieve conversation history due to a server error.",
+          error: error.message
+      });
+  }
+}
+
 const deleteteacher= async (req, res) => {
   const {email} = req.body; 
   if (!email) {
@@ -490,4 +531,4 @@ const deleteteacher= async (req, res) => {
 
  
  
-module.exports={teacherSignup ,teacherLogin,addcourse,addarticle,viewTeacherRating,viewCourses,teacherconfirmEmail,deleteteacher}
+module.exports={teacherSignup ,teacherLogin,addcourse,addarticle,viewTeacherRating,viewCourses,teacherconfirmEmail,deleteteacher,getConversationHistory,sendMessageToUser}
