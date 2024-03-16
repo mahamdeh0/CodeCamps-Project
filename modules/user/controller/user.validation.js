@@ -1,6 +1,5 @@
 const Joi = require('joi')
 
-
 const userSignup = {
 
     body:Joi.object().required().keys({
@@ -22,4 +21,5 @@ const userLogin = {
         password:Joi.string().min(5).max(20),
     })
 }
+
 module.exports= {userSignup,userLogin}

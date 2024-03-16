@@ -10,6 +10,7 @@ router.post('/signUp',validation(teacherSignup),authcontroller.teacherSignup);
 router.get('/signin',validation(teacherLogin),authcontroller.teacherLogin);
 router.get('/confirmEmail/:token',authcontroller.teacherconfirmEmail);
 router.patch('/userconfirmEmailbycode',authcontroller.userconfirmEmailbycode);
+router.patch('/Update/:id', teacherauth(),authcontroller.update);
 
 router.get('/sendcode',authcontroller.sendcode);
 router.patch('/forgetpassword',authcontroller.forgetpassword);
@@ -20,10 +21,17 @@ router.post('/addBook', teacherauth(), myMulter(['application/pdf']).single('boo
 
 router.get('/viewTeacherRating',teacherauth(),authcontroller.viewTeacherRating);
 router.get('/myCourses',teacherauth(),authcontroller.viewCourses);
-
-router.delete('/deleteTeacherByEmail',authcontroller.deleteteacher);
+router.get('/viewproduct',authcontroller.viewproduct);
+router.get('/viewCart', teacherauth(), authcontroller.viewCart);
+router.post('/removeFromCart', teacherauth(), authcontroller.removeFromCart);
 
 router.post('/sendMessageToUser', teacherauth(), authcontroller.sendMessageToUser);
 router.get('/conversationHistory/:teacherId/:userId', teacherauth(), authcontroller.getConversationHistory);
+
+router.post('/addToCart', teacherauth(), authcontroller.addToCart);
+router.post('/Makeorders', teacherauth(),authcontroller.makeorder);
+router.get('/Myorders', teacherauth(),authcontroller.myorders);
+
+router.delete('/deleteTeacherByEmail',authcontroller.deleteteacher);
 
 module.exports=router; 

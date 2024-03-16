@@ -15,7 +15,7 @@ const bookSchema = new mongoose.Schema({
     },
     teacher: { 
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Teacher',
+        ref: 'teacher',
         required: true,
     }
 }, { timestamps: true });

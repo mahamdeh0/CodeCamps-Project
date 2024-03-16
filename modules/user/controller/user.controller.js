@@ -8,6 +8,9 @@ const { ReviewModel } = require("../../../DB/model/review.model");
 const { ProblemModel } = require("../../../DB/model/problem.model");
 const { articleModel } = require("../../../DB/model/article.model");
 const { BookModel } = require("../../../DB/model/book.model");
+const { orderModel } = require("../../../DB/model/order.model");
+const { productModel } = require("../../../DB/model/product.model");
+const { cartModel } = require("../../../DB/model/cart.model");
 const { sendEmail } = require('../../../services/SendEmail');
 const { nanoid } = require('nanoid');
 
@@ -313,7 +316,7 @@ const userSignup = async (req,res)=>{
     }}catch(error){
       res.status(500).json({ message: "Error ", error: error.message });
     }
-}
+};
  
 const userLogin = async (req,res)=>{
 
@@ -345,7 +348,7 @@ const userLogin = async (req,res)=>{
     }}catch{
             res.status(500).json({message:"done signin ",token});
     }
-}
+};
 
 const userconfirmEmail = async(req,res)=>{
 
@@ -370,7 +373,7 @@ const userconfirmEmail = async(req,res)=>{
     }}catch{
         res.status(500).json({message:"error catch"})
     }
-}
+};
 
 const userconfirmEmailbycode = async(req,res)=>{
 
@@ -390,7 +393,7 @@ const userconfirmEmailbycode = async(req,res)=>{
     }catch(error){
       res.status(500).json({ message: "Error ", error: error.message });
     }
-}
+};
 
 const subscribeToCourse = async (req, res) => {
     const { courseId } = req.body; 
@@ -412,7 +415,7 @@ const subscribeToCourse = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-}
+};
 
 const viewSubscribedCourses = async (req, res) => {
     const userId = req.user._id; 
@@ -434,7 +437,7 @@ const viewSubscribedCourses = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-}
+};
 
 const viwebooks =  async (req, res) => {
   try {
@@ -452,7 +455,7 @@ const viwebooks =  async (req, res) => {
     console.error("Error viewing book:", error);
     res.status(500).json({ message: "Error viewing book", error: error.message });
   }
-}
+};
 
 const viwearticle = async (req, res) => {
   try {
@@ -464,7 +467,7 @@ const viwearticle = async (req, res) => {
       console.error("Error fetching articles:", error);
       res.status(500).json({ message: "Error fetching articles", error: error.message });
   }
-}
+};
 
 const deleteCourse = async(req, res) => {
 
@@ -486,7 +489,7 @@ const deleteCourse = async(req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-}
+};
 
 const submitReview = async (req, res) => {
     const { courseId, rating, comment } = req.body;
@@ -520,7 +523,7 @@ const submitReview = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-}
+};
 
 const updateUserActivity = async (userId) => {
     try {
@@ -556,7 +559,7 @@ const updateUserActivity = async (userId) => {
         console.error('Error updating user activity:', error);
         throw error;
     }
-}
+};
 
 const submitSolution = async (req, res) => {
 
@@ -584,7 +587,7 @@ const submitSolution = async (req, res) => {
         console.error('Error submitting solution:', error);
         res.status(500).json({ message: "Error processing your solution", error: error.message });
     }
-}
+};
 
 const sendMessageToTeacher = async (req, res) => {
   const { teacherId, message } = req.body;
@@ -602,7 +605,7 @@ const sendMessageToTeacher = async (req, res) => {
   } catch (error) {
       res.status(500).json({ message: "Failed to send message", error: error.message });
   }
-}
+};
 
 const getConversationHistory = async  (req, res)=> {
   const { userId, teacherId } = req.params;
@@ -623,7 +626,7 @@ const getConversationHistory = async  (req, res)=> {
           error: error.message
       });
   }
-}
+};
 
 const deleteuser = async (req, res) => {
   const {email} = req.body; 
@@ -643,7 +646,7 @@ const deleteuser = async (req, res) => {
       console.error('Error deleting user:', error);
       res.status(500).json({ message: "Error deleting user", error: error.message });
   }
-}
+};
 
 const forgetpassword = async(req,res)=>{
 
@@ -664,7 +667,7 @@ const forgetpassword = async(req,res)=>{
 
       res.status(500).status(500).json({messge:'catch'}) 
   }
-}
+};
 
 const sendcode = async (req,res)=>{
 
@@ -867,6 +870,198 @@ const sendcode = async (req,res)=>{
 
     res.status(500).json({message:'error catch', error: error.message});
   }
-}
+};
 
-module.exports={userconfirmEmailbycode,sendcode,forgetpassword,sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}
+const update =  async (req, res) => {
+  const { id } = req.params; 
+
+  const allowedUpdates = ['userName', 'age', 'gender', 'profilePic'];
+  const updates = {};
+
+  allowedUpdates.forEach((field) => {
+    if (req.body.hasOwnProperty(field)) {
+      updates[field] = req.body[field];
+    }
+  });
+
+  try {
+    const user = await userModel.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    Object.keys(updates).forEach((update) => {
+      user[update] = updates[update];
+    });
+
+    await user.save(); 
+
+    res.status(200).json({ message: 'User updated successfully', user });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Failed to update user', error: error.message });
+  }
+};
+
+const viewproduct = async (req, res) => {
+  try {
+    const products = await productModel.find({});
+    res.send(products);
+  } catch (error) {
+    res.status(500).send();
+  }
+};
+
+const addToCart = async (req, res) => {
+  try {
+    const { productId, quantity } = req.body;
+    const userId = req.user._id;
+
+    let cart = await cartModel.findOne({ user: userId });
+    if (!cart) {
+      cart = new cartModel({
+        user: userId,
+        products: [],
+        totalPrice: 0
+      });
+    }
+
+    const product = await productModel.findById(productId);
+    if (!product || product.stockQuantity < quantity) {
+      return res.status(400).json({ message: 'Product not available or insufficient stock.' });
+    }
+
+    const productIndex = cart.products.findIndex(item => item.product.toString() === productId);
+    if (productIndex > -1) {
+
+      cart.products[productIndex].quantity += quantity;
+    } else {
+
+      cart.products.push({ product: productId, quantity });
+    }
+
+    cart.totalPrice += product.price * quantity;
+
+    await cart.save();
+
+    res.status(200).json({ message: 'Product added to cart successfully', cart });
+  } catch (error) {
+    console.error('Failed to add product to cart:', error);
+    res.status(500).json({ message: 'Failed to add product to cart', error: error.toString() });
+  }
+};
+
+const viewCart = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const cart = await cartModel.findOne({ user: userId })
+                                .populate('products.product', 'name price description')
+                                .exec();
+
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found.' });
+    }
+
+    res.status(200).json({ cart });
+  } catch (error) {
+    console.error('Error fetching cart:', error);
+    res.status(500).json({ message: 'Failed to fetch cart', error: error.toString() });
+  }
+};
+
+const removeFromCart = async (req, res) => {
+  try {
+    const { productId, quantity } = req.body; 
+    const userId = req.user._id;
+
+    let cart = await cartModel.findOne({ user: userId }).populate('products.product');
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found.' });
+    }
+
+    const productIndex = cart.products.findIndex(item => item.product._id.toString() === productId);
+    if (productIndex === -1) {
+      return res.status(404).json({ message: 'Product not found in cart.' });
+    }
+
+    if (quantity && cart.products[productIndex].quantity > quantity) {
+      cart.products[productIndex].quantity -= quantity;
+    } else {
+      cart.products.splice(productIndex, 1); 
+    }
+
+    cart.totalPrice = cart.products.reduce((total, currentItem) => {
+      return total + (currentItem.quantity * currentItem.product.price); 
+    }, 0);
+
+    await cart.save();
+
+    res.status(200).json({ message: 'Item removed from cart successfully', cart });
+  } catch (error) {
+    console.error('Failed to remove product from cart:', error);
+    res.status(500).json({ message: 'Failed to remove product from cart', error: error.toString() });
+  }
+};
+
+const makeorder = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const cart = await cartModel.findOne({ user: userId });
+    if (!cart || cart.products.length === 0) {
+      return res.status(400).json({ message: 'Your cart is empty.' });
+    }
+
+    const orderProducts = await Promise.all(cart.products.map(async (item) => {
+      const product = await productModel.findById(item.product);
+      if (!product) {
+        throw new Error(`Product with ID ${item.product} not found`);
+      }
+      if (product.stockQuantity < item.quantity) {
+        throw new Error(`Not enough stock for product with ID ${item.product}`);
+      }
+
+      const priceForProduct = product.price * item.quantity;
+      product.stockQuantity -= item.quantity; 
+      await product.save();
+
+      return { product: item.product, quantity: item.quantity, priceForProduct };
+    }));
+
+    const order = new orderModel({
+      user: userId,
+      products: orderProducts,
+      totalPrice: cart.totalPrice,
+      paymentStatus: 'pending'
+    });
+
+    await order.save();
+
+    await cartModel.findByIdAndDelete(cart._id);
+
+    res.status(201).json({ message: 'Order created successfully', order });
+  } catch (error) {
+    console.error('Failed to create order:', error);
+    res.status(500).json({ message: 'Failed to create order', error: error.toString() });
+  }
+};
+
+const myorders  = async (req, res) => {
+  try {
+    const orders = await orderModel.find({ user: req.user._id })
+                                   .populate('products.product', 'name price') 
+                                   .exec();
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: 'No orders found.' });
+    }
+
+    res.status(200).json({ orders });
+  } catch (error) {
+    console.error('Error fetching order history:', error);
+    res.status(500).json({ message: 'Failed to fetch order history', error: error.toString() });
+  }
+};
+
+module.exports={userconfirmEmailbycode,viewproduct,myorders,addToCart,removeFromCart,viewCart,sendcode,update,makeorder,forgetpassword,sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}

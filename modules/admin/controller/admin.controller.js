@@ -6,6 +6,7 @@ const { articleModel } = require("../../../DB/model/article.model");
 const { ProblemModel } = require("../../../DB/model/problem.model");
 const { userModel } = require("../../../DB/model/user.model");
 const { teacherModel } = require("../../../DB/model/Teacher.model");
+const { productModel } = require("../../../DB/model/product.model");
 const { sendEmail } = require('../../../services/SendEmail');
 
 const adminSignup = async (req,res)=>{
@@ -470,7 +471,79 @@ const viewAllUsersAndTeachersAndCourses = async (req, res) => {
     }
 };
 
+const addProduct =  async (req, res) => {
+  const { name, description, price, category, stockQuantity, images } = req.body;
 
+  if (!name || price === undefined || !category || stockQuantity === undefined) {
+    return res.status(400).json({ message: 'Please provide name, price, category, and stock quantity.' });
+  }
 
+  try {
+    const product= new productModel({
+      name,
+      description, 
+      price,
+      category,
+      stockQuantity,
+      images 
+    });
 
-module.exports={adminSignup,adminLogin,approveCourse,addcourse,addarticle,addproblem,viewAllUsersAndTeachersAndCourses,adminconfirmEmail}
+    await product.save();
+    res.status(201).json({ message: 'Product added successfully', product });
+  } catch (error) {
+    console.error('Error adding product:', error);
+    res.status(500).json({ message: 'Failed to add product', error: error.message });
+  }
+};
+
+const deleteproduct = async (req, res) => {
+
+  const { id } = req.params; 
+
+  try {
+    const deletedProduct = await productModel.findByIdAndDelete(id);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: 'Product not found.' });
+    }
+
+    res.status(200).json({ message: 'Product deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({ message: 'Failed to delete product', error: error.message });
+  }
+};
+
+const updateproduct = async (req, res) => {
+
+  const { id } = req.params; 
+  const updates = {};
+  const allowedUpdates = ['name', 'description', 'price', 'category', 'stockQuantity', 'images'];
+  
+  allowedUpdates.forEach((field) => {
+    if (req.body.hasOwnProperty(field)) {
+      updates[field] = req.body[field];
+    }
+  });
+
+  try {
+    const product = await productModel.findById(id);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found.' });
+    }
+
+    Object.keys(updates).forEach((update) => {
+      product[update] = updates[update];
+    });
+
+    await product.save(); 
+
+    res.status(200).json({ message: 'Product updated successfully', product });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).json({ message: 'Failed to update product', error: error.message });
+  }
+};
+
+module.exports={adminSignup,adminLogin,addProduct,deleteproduct,updateproduct,approveCourse,addcourse,addarticle,addproblem,viewAllUsersAndTeachersAndCourses,adminconfirmEmail}

@@ -18,7 +18,8 @@ router.post('/addProblem',adminauth(), authcontroller.addproblem);
 
 router.get('/viewAllUsersAndTeachersAndCourses',adminauth(),authcontroller.viewAllUsersAndTeachersAndCourses);
 
-
-
+router.post('/addProduct',adminauth(),authcontroller.addProduct);
+router.delete('/deleteproducts/:id',adminauth(),authcontroller.deleteproduct);
+router.patch('/updateproduct/:id', adminauth(),authcontroller.updateproduct);
 
 module.exports=router; 
