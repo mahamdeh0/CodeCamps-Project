@@ -318,6 +318,22 @@ const teacherSignup = async (req,res)=>{
     }
 };
 
+const getTeacherdata=async(req,res)=>{
+  const{email} = req.body;
+  console.log(email)
+  try{
+  const user = await teacherModel.findOne({email});
+
+  if(!user){
+      res.json({message:"invalid account"});
+  }else{
+    res.json(user);
+  }}catch{
+          res.status(500).json({message:"done signin "});
+  }
+
+}
+
 const teacherLogin = async (req,res)=>{
 
     const{email,password} = req.body;
@@ -1000,4 +1016,4 @@ const myorders  = async (req, res) => {
   }
 };
 
-module.exports={teacherSignup,forgetpassword,sendcode,update,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,teacherLogin,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser}
+module.exports={teacherSignup,forgetpassword,sendcode,update,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,teacherLogin,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}
