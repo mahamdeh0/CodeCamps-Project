@@ -319,37 +319,36 @@ const userSignup = async (req,res)=>{
     }
 };
  
-const userLogin = async (req,res)=>{
+const userLogin = async (req, res) => {
+  // Extract email and password from query parameters instead of request body
+  const { email, password } = req.query;
 
-    const{email,password} = req.body;
-    try{
-    const user = await userModel.findOne({email});
+  try {
+      const user = await userModel.findOne({ email });
 
-    if(!user){
-        res.json({message:"invalid account"});
-    }else{
+      if (!user) {
+          return res.status(404).json({ message: "Invalid account" });
+      }
 
-        if(!user.confirmEmail){
-            res.status(400).json({message:"please confirm your email first"})
-    
-        }else{
+      if (!user.confirmEmail) {
+          return res.status(400).json({ message: "Please confirm your email first" });
+      }
 
-        const match = await bcrypt.compare(password,user.password);
+      const match = await bcrypt.compare(password, user.password);
 
-        if(!match){
+      if (!match) {
+          return res.status(400).json({ message: "Invalid password" });
+      }
 
-            res.status(400).json({message:"invalid password"});
+      const token = jwt.sign({ id: user._id }, process.env.logintoken, { expiresIn: 60 * 60 * 24 });
+      return res.status(200).json({ message: "Done signin", token });
 
-        }else{
-
-            const token = jwt.sign({id:user._id},process.env.logintoken,{expiresIn:60*60*24});
-            res.status(200).json({message:"done signin ",token});
-        }}
-
-    }}catch{
-            res.status(500).json({message:"done signin ",token});
-    }
+  } catch (error) {
+      console.error(error); // Logging the error to the console is a good practice for debugging
+      return res.status(500).json({ message: "An error occurred" });
+  }
 };
+
 
 const userconfirmEmail = async(req,res)=>{
 
