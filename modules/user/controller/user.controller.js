@@ -17,12 +17,12 @@ const { nanoid } = require('nanoid');
 const userSignup = async (req,res)=>{
 
     const {name,email,password,age,gender}= req.body;
-
+    console.log({name,email,password,age,gender});
     try{
     const user = await userModel.findOne({email:email});
 
     if(user){
-
+          console.log("email already exist")
         res.status(409).json({message:"email already exist"})
     }else{
 
@@ -31,6 +31,7 @@ const userSignup = async (req,res)=>{
         const savedUser = await newUser.save();
 
         if(!savedUser){
+          console.log("Failed to register")
             res.status(400).json({message:"Failed to register"});
         }else{
 
@@ -310,7 +311,7 @@ const userSignup = async (req,res)=>{
             await sendEmail(email, 'confirm Email', message)
             const userupdate = await userModel.findOneAndUpdate({email:email},{sendcode:code});
 
-            res.status(201).json({message:"An account has been created successfully"})
+            res.status(201).json({message:"An account has been created successfully",token})
         }
  
     }}catch(error){
