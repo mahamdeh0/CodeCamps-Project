@@ -319,6 +319,37 @@ const userSignup = async (req,res)=>{
     }
 };
 
+const userLogin = async (req, res) => {
+
+  const { email, password } =  req.body; 
+
+  try {
+    const account = await userModel.findOne({ email });
+
+    if (!account) {
+      return res.status(404).json({ message: `Invalid account for teacher` });
+    }
+
+    if (!account.confirmEmail) {
+      return res.status(400).json({ message: `Please confirm your email first as a teacher` });
+    }
+
+    const match = await bcrypt.compare(password, account.password);
+
+    if (!match) {
+      return res.status(400).json({ message: `Invalid password for teacher` });
+    }
+
+    const token = jwt.sign({ id: account._id }, process.env.logintoken, { expiresIn: 60 * 60 * 24 });
+
+    return res.status(200).json({ message: `Done signing in as teacher`, token });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: `An error occurred during teacher login`, error: error.message });
+  }
+};
+
 const userconfirmEmail = async(req,res)=>{
 
     try{
@@ -1033,4 +1064,4 @@ const myorders  = async (req, res) => {
   }
 };
 
-module.exports={userconfirmEmailbycode,viewproduct,myorders,addToCart,removeFromCart,viewCart,sendcode,update,makeorder,forgetpassword,sendMessageToTeacher,userSignup,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}
+module.exports={userconfirmEmailbycode,viewproduct,myorders,addToCart,removeFromCart,viewCart,sendcode,update,makeorder,forgetpassword,sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}
