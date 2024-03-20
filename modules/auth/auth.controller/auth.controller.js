@@ -5,7 +5,7 @@ const { teacherModel } = require("../../../DB/model/Teacher.model");
 
 
 const Login = async (req, res) => {
-    const { email, password, role } =  req.body;
+    const { email, password, role } =  req.query;
   
     const Model = role === 'user' ? userModel : teacherModel;
     const roleDisplayName = role === 'user' ? 'User' : 'Teacher'; 
