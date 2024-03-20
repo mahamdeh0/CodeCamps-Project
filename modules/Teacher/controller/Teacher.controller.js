@@ -318,6 +318,37 @@ const teacherSignup = async (req,res)=>{
     }
 };
 
+const teacherLogin = async (req, res) => {
+
+  const { email, password } =  req.query;
+
+  try {
+    const account = await teacherModel.findOne({ email });
+
+    if (!account) {
+      return res.status(404).json({ message: `Invalid account for teacher` });
+    }
+
+    if (!account.confirmEmail) {
+      return res.status(400).json({ message: `Please confirm your email first as a teacher` });
+    }
+
+    const match = await bcrypt.compare(password, account.password);
+
+    if (!match) {
+      return res.status(400).json({ message: `Invalid password for teacher` });
+    }
+
+    const token = jwt.sign({ id: account._id }, process.env.logintoken, { expiresIn: 60 * 60 * 24 });
+
+    return res.status(200).json({ message: `Done signing in as teacher`, token });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: `An error occurred during teacher login`, error: error.message });
+  }
+};
+
 const getTeacherdata=async(req,res)=>{
   const{email} = req.body;
   console.log(email)
@@ -333,41 +364,6 @@ const getTeacherdata=async(req,res)=>{
   }
 
 }
-
-const teacherLogin = async (req,res)=>{
-
-    const{email,password} = req.body;
-    try{
-    const teacher = await teacherModel.findOne({email});
-
-    if(!teacher){
-        res.status(404).json({message:"invalid account"});
-    }else{
-
-        if(!teacher.confirmEmail){
-            res.status(400).json({message:"please confirm your email first"})
-    
-        }else{
-
-        const match = await bcrypt.compare(password,teacher.password);
-
-        if(!match){
-
-            res.status(400).json({message:"invalid password"});
-
-        }else{
-            const token = jwt.sign({id:teacher._id},process.env.logintoken,{expiresIn:60*60*24});
-            res.status(200).json({message:"done signin ",token});
-
-        }}
-
-    }}catch(error){
-        res.status(500).json({message:"ERROR catch ", error: error.message});
-
-    }
-
- 
-};
 
 const teacherconfirmEmail = async(req,res)=>{
 
@@ -1016,4 +1012,4 @@ const myorders  = async (req, res) => {
   }
 };
 
-module.exports={teacherSignup,forgetpassword,sendcode,update,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,teacherLogin,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}
+module.exports={teacherSignup,teacherLogin,forgetpassword,sendcode,update,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}

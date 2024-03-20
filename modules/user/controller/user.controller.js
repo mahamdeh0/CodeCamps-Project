@@ -318,38 +318,43 @@ const userSignup = async (req,res)=>{
       res.status(500).json({ message: "Error ", error: error.message });
     }
 };
- 
+
 const userLogin = async (req, res) => {
+<<<<<<< HEAD
   // Extract email and password from query parameters instead of request body
   const { email, password } = req.query;
   console.log(email);
+=======
+
+  const { email, password } =  req.body; 
+>>>>>>> c66bf7f97be35a9037ad6be4c238c0f25f441334
 
   try {
-      const user = await userModel.findOne({ email });
+    const account = await userModel.findOne({ email });
 
-      if (!user) {
-          return res.status(404).json({ message: "Invalid account" });
-      }
+    if (!account) {
+      return res.status(404).json({ message: `Invalid account for user` });
+    }
 
-      if (!user.confirmEmail) {
-          return res.status(400).json({ message: "Please confirm your email first" });
-      }
+    if (!account.confirmEmail) {
+      return res.status(400).json({ message: `Please confirm your email first as a user` });
+    }
 
-      const match = await bcrypt.compare(password, user.password);
+    const match = await bcrypt.compare(password, account.password);
 
-      if (!match) {
-          return res.status(400).json({ message: "Invalid password" });
-      }
+    if (!match) {
+      return res.status(400).json({ message: `Invalid password for user` });
+    }
 
-      const token = jwt.sign({ id: user._id }, process.env.logintoken, { expiresIn: 60 * 60 * 24 });
-      return res.status(200).json({ message: "Done signin", token });
+    const token = jwt.sign({ id: account._id }, process.env.logintoken, { expiresIn: 60 * 60 * 24 });
+
+    return res.status(200).json({ message: `Done signing in as user`, token });
 
   } catch (error) {
-      console.error(error); // Logging the error to the console is a good practice for debugging
-      return res.status(500).json({ message: "An error occurred" });
+    console.error(error);
+    return res.status(500).json({ message: `An error occurred during user login`, error: error.message });
   }
 };
-
 
 const userconfirmEmail = async(req,res)=>{
 
@@ -1065,4 +1070,4 @@ const myorders  = async (req, res) => {
   }
 };
 
-module.exports={userconfirmEmailbycode,viewproduct,myorders,addToCart,removeFromCart,viewCart,sendcode,update,makeorder,forgetpassword,sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory,}
+module.exports={userconfirmEmailbycode,viewproduct,myorders,addToCart,removeFromCart,viewCart,sendcode,update,makeorder,forgetpassword,sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}
