@@ -320,14 +320,8 @@ const userSignup = async (req,res)=>{
 };
 
 const userLogin = async (req, res) => {
-<<<<<<< HEAD
-  // Extract email and password from query parameters instead of request body
-  const { email, password } = req.query;
-  console.log(email);
-=======
 
   const { email, password } =  req.body; 
->>>>>>> c66bf7f97be35a9037ad6be4c238c0f25f441334
 
   try {
     const account = await userModel.findOne({ email });
