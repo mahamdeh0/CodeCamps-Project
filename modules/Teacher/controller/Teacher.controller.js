@@ -334,41 +334,6 @@ const getTeacherdata=async(req,res)=>{
 
 }
 
-const teacherLogin = async (req,res)=>{
-
-    const{email,password} = req.body;
-    try{
-    const teacher = await teacherModel.findOne({email});
-
-    if(!teacher){
-        res.status(404).json({message:"invalid account"});
-    }else{
-
-        if(!teacher.confirmEmail){
-            res.status(400).json({message:"please confirm your email first"})
-    
-        }else{
-
-        const match = await bcrypt.compare(password,teacher.password);
-
-        if(!match){
-
-            res.status(400).json({message:"invalid password"});
-
-        }else{
-            const token = jwt.sign({id:teacher._id},process.env.logintoken,{expiresIn:60*60*24});
-            res.status(200).json({message:"done signin ",token});
-
-        }}
-
-    }}catch(error){
-        res.status(500).json({message:"ERROR catch ", error: error.message});
-
-    }
-
- 
-};
-
 const teacherconfirmEmail = async(req,res)=>{
 
     try{
@@ -1016,4 +981,4 @@ const myorders  = async (req, res) => {
   }
 };
 
-module.exports={teacherSignup,forgetpassword,sendcode,update,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,teacherLogin,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}
+module.exports={teacherSignup,forgetpassword,sendcode,update,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}

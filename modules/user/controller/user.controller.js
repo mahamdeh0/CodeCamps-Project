@@ -318,37 +318,6 @@ const userSignup = async (req,res)=>{
       res.status(500).json({ message: "Error ", error: error.message });
     }
 };
- 
-const userLogin = async (req, res) => {
-  // Extract email and password from query parameters instead of request body
-  const { email, password } = req.query;
-
-  try {
-      const user = await userModel.findOne({ email });
-
-      if (!user) {
-          return res.status(404).json({ message: "Invalid account" });
-      }
-
-      if (!user.confirmEmail) {
-          return res.status(400).json({ message: "Please confirm your email first" });
-      }
-
-      const match = await bcrypt.compare(password, user.password);
-
-      if (!match) {
-          return res.status(400).json({ message: "Invalid password" });
-      }
-
-      const token = jwt.sign({ id: user._id }, process.env.logintoken, { expiresIn: 60 * 60 * 24 });
-      return res.status(200).json({ message: "Done signin", token });
-
-  } catch (error) {
-      console.error(error); // Logging the error to the console is a good practice for debugging
-      return res.status(500).json({ message: "An error occurred" });
-  }
-};
-
 
 const userconfirmEmail = async(req,res)=>{
 
@@ -1064,4 +1033,4 @@ const myorders  = async (req, res) => {
   }
 };
 
-module.exports={userconfirmEmailbycode,viewproduct,myorders,addToCart,removeFromCart,viewCart,sendcode,update,makeorder,forgetpassword,sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory,}
+module.exports={userconfirmEmailbycode,viewproduct,myorders,addToCart,removeFromCart,viewCart,sendcode,update,makeorder,forgetpassword,sendMessageToTeacher,userSignup,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}

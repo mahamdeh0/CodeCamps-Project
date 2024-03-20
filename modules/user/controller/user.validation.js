@@ -14,12 +14,5 @@ const userSignup = {
         age: Joi.number().integer().min(12).max(99).required()
         .messages({'string.empty': 'Age must consist of two digits and be between 12 and 99.'}),    })
 }
-const userLogin = {
 
-    body:Joi.object().required().keys({
-        email:Joi.string().email(),
-        password:Joi.string().min(5).max(20),
-    })
-}
-
-module.exports= {userSignup,userLogin}
+module.exports= {userSignup}
