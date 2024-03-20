@@ -327,26 +327,26 @@ const userLogin = async (req, res) => {
     const account = await userModel.findOne({ email });
 
     if (!account) {
-      return res.status(404).json({ message: `Invalid account for teacher` });
+      return res.status(404).json({ message: `Invalid account for user` });
     }
 
     if (!account.confirmEmail) {
-      return res.status(400).json({ message: `Please confirm your email first as a teacher` });
+      return res.status(400).json({ message: `Please confirm your email first as a user` });
     }
 
     const match = await bcrypt.compare(password, account.password);
 
     if (!match) {
-      return res.status(400).json({ message: `Invalid password for teacher` });
+      return res.status(400).json({ message: `Invalid password for user` });
     }
 
     const token = jwt.sign({ id: account._id }, process.env.logintoken, { expiresIn: 60 * 60 * 24 });
 
-    return res.status(200).json({ message: `Done signing in as teacher`, token });
+    return res.status(200).json({ message: `Done signing in as user`, token });
 
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: `An error occurred during teacher login`, error: error.message });
+    return res.status(500).json({ message: `An error occurred during user login`, error: error.message });
   }
 };
 
