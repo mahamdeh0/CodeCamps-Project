@@ -322,6 +322,7 @@ const userSignup = async (req,res)=>{
 const userLogin = async (req, res) => {
   // Extract email and password from query parameters instead of request body
   const { email, password } = req.query;
+  console.log(email);
 
   try {
       const user = await userModel.findOne({ email });
