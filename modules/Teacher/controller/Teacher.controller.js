@@ -320,7 +320,7 @@ const teacherSignup = async (req,res)=>{
 
 const teacherLogin = async (req, res) => {
 
-  const { email, password } =  req.query;
+  const { email, password } =  req.body;
 
   try {
     const account = await teacherModel.findOne({ email });
