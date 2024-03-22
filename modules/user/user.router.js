@@ -6,7 +6,7 @@ const { validation } = require('../../middlewear/validation');
 const { userauth } = require('../../middlewear/auth');
 
 router.post('/signUp',validation(userSignup),authcontroller.userSignup);
-router.get('/signin',authcontroller.userLogin);
+router.post('/signin',authcontroller.userLogin);
 
 router.get('/confirmEmail/:token',authcontroller.userconfirmEmail);
 router.patch('/userconfirmEmailbycode',authcontroller.userconfirmEmailbycode);

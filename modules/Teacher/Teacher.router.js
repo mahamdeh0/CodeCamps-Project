@@ -7,7 +7,7 @@ const { teacherauth } = require('../../middlewear/auth');
 const { myMulter, HME } = require('../../services/multer');
  
 router.post('/signUp',validation(teacherSignup),authcontroller.teacherSignup);
-router.get('/signin',authcontroller.teacherLogin);
+router.post('/signin',authcontroller.teacherLogin);
 
 
 router.get('/getteacher',authcontroller.getTeacherdata);
