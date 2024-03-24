@@ -12,10 +12,10 @@ router.post('/signin',authcontroller.teacherLogin);
 
 router.get('/getteacher',authcontroller.getTeacherdata);
 router.get('/confirmEmail/:token',authcontroller.teacherconfirmEmail);
-router.patch('/userconfirmEmailbycode',authcontroller.userconfirmEmailbycode);
+router.patch('/teacherconfirmEmailbycode',authcontroller.userconfirmEmailbycode);
 router.patch('/Update/:id', teacherauth(),authcontroller.update);
 
-router.get('/sendcode',authcontroller.sendcode);
+router.post('/sendcode',authcontroller.sendcode);
 router.patch('/forgetpassword',authcontroller.forgetpassword);
 
 router.post('/addcourse',teacherauth(),authcontroller.addcourse);

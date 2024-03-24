@@ -802,7 +802,7 @@ const sendcode = async (req,res)=>{
           </tr>
         </tbody>
       </table>`;
-      await sendEmail(email,'Update password',message);
+      await sendEmail(email,'Verify Code',message);
       updateuser = await teacherModel.updateOne({_id:user._id},{sendcode:code});
       if(!updateuser){
 

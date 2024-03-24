@@ -319,6 +319,8 @@ const userSignup = async (req,res)=>{
     }
 };
 
+
+
 const userLogin = async (req, res) => {
 
   const { email, password } =  req.body; 
@@ -859,7 +861,7 @@ const sendcode = async (req,res)=>{
         </tbody>
       </table>`;
 
-      await sendEmail(email,'Update password',message);
+      await sendEmail(email,'Verify Code',message);
       const updateuser = await userModel.updateOne({_id:user._id},{sendcode:code});
       if(!updateuser){
           res.status(404).json({message:'invalid code'});

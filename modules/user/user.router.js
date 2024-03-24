@@ -12,7 +12,7 @@ router.get('/confirmEmail/:token',authcontroller.userconfirmEmail);
 router.patch('/userconfirmEmailbycode',authcontroller.userconfirmEmailbycode);
 router.patch('/Update/:id', userauth(),authcontroller.update);
 
-router.get('/sendcode',authcontroller.sendcode);
+router.post('/sendcode',authcontroller.sendcode);
 router.patch('/forgetpassword',authcontroller.forgetpassword);
 
 router.post('/sendMessageToTeacher', userauth(), authcontroller.sendMessageToTeacher);
