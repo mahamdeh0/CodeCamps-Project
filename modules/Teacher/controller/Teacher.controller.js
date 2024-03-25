@@ -414,11 +414,11 @@ const userconfirmEmailbycode = async(req,res)=>{
 };
 
 const addcourse = async (req, res) => {
-    const { courseName, Description, maximum, price, location, present } = req.body;
+    const { courseName, Description, maximum, price, location, present,CriditHoure } = req.body;
     const teacherId = req.teacher._id; 
 
     try {
-        const newcourse = new courseModel({ courseName:courseName, Description:Description,maximum:maximum,price:price,location:location,present:present,teacher: teacherId });
+        const newcourse = new courseModel({ courseName:courseName, Description:Description,maximum:maximum,price:price,location:location,present:present,teacher: teacherId,CriditHoure:CriditHoure });
         const savedcourse = await newcourse.save();
         if(savedcourse){
         res.status(201).json({ message: "Course successfully saved" });
@@ -453,7 +453,7 @@ const addarticle = async (req, res) => {
 
 const addBook = async (req, res) => {
   try {
-      const { title, author, publicationYear } = req.body;
+      const { title, author, publicationYear,Tags,Category } = req.body;
       const teacherId = req.teacher._id;
       const pdfContent = req.file.buffer; 
 
@@ -462,6 +462,8 @@ const addBook = async (req, res) => {
           author,
           publicationYear,
           pdfContent,
+          Tags,
+          Category,
           teacher: teacherId
       });
 
