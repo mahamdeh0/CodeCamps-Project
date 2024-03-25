@@ -40,6 +40,9 @@ const courseSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
         required: true
+    },
+    CriditHoure:{
+        type: Number
     }
 
 },{timestamps:true});
