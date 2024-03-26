@@ -373,11 +373,11 @@ const adminconfirmEmail = async(req,res)=>{
 }
 
 const addcourse = async (req, res) => {
-    const { courseName, Description, maximum, price, location, present } = req.body;
-    const adminId = req.admin._id; 
+  const { courseName, Description, maximum, price, location, present,CriditHoure } = req.body;
+  const adminId = req.admin._id; 
 
     try {
-        const newcourse = new courseModel({ courseName:courseName, Description:Description,maximum:maximum,price:price,location:location,present:present,admin: adminId });
+        const newcourse = new courseModel({ courseName:courseName, Description:Description,maximum:maximum,price:price,location:location,present:present,CriditHoure:CriditHoure,admin: adminId });
         const savedcourse = await newcourse.save();
         if(savedcourse){
         res.status(201).json({ message: "Course successfully saved" });

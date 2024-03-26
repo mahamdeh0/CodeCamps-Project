@@ -43,7 +43,14 @@ const userSchema = new mongoose.Schema({
     sendcode:{
         type: String,
         default:null
+    },
+    ExerciseNumber : {
+        type: Number
+    },
+    BaseGoal:{
+        type: Number
     }
+
 }, { timestamps: true });
 
 const userModel = mongoose.model('user', userSchema);

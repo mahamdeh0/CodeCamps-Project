@@ -17,6 +17,12 @@ const bookSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'teacher',
         required: true,
+    },
+    Tags: {
+        type: [String]
+    },
+    Category: {
+        type: String 
     }
 }, { timestamps: true });
 
