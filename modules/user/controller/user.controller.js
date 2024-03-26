@@ -378,18 +378,10 @@ const userconfirmEmail = async(req,res)=>{
 };
 
 const getUserData=async(req,res)=>{
-  const{email} = req.body;
-  console.log(email)
-  try{
-  const user = await userModel.findOne({email});
 
-  if(!user){
-      res.json({message:"invalid account"});
-  }else{
-    res.json(user);
-  }}catch{
-          res.status(500).json({message:"done signin "});
-  }
+console.log(req.user)
+    res.status(200).json(req.user);
+ 
 
 }
 
