@@ -21,6 +21,8 @@ router.patch('/forgetpassword',authcontroller.forgetpassword);
 router.post('/addcourse',teacherauth(),authcontroller.addcourse);
 router.post('/addarticle',teacherauth(),authcontroller.addarticle);
 router.post('/addBook', teacherauth(), myMulter(['application/pdf']).single('book'), HME, authcontroller.addBook);
+router.post('/upload-video/:courseId', teacherauth(), myMulter(['video/mp4']).single('videoUrl'), HME, authcontroller.uploadvideo);
+router.get('/course/:courseId/:videoId',authcontroller.getvideo);
 
 router.get('/viewTeacherRating',teacherauth(),authcontroller.viewTeacherRating);
 router.get('/myCourses',teacherauth(),authcontroller.viewCourses);

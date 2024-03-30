@@ -1014,4 +1014,53 @@ const myorders  = async (req, res) => {
   }
 };
 
-module.exports={teacherSignup,teacherLogin,forgetpassword,sendcode,update,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}
+const uploadvideo = async (req, res) => {
+  const { courseId } = req.params;
+  const { title } = req.body;
+  const videoUrl = req.file.buffer; 
+
+  try {
+      await courseModel.findByIdAndUpdate(
+          courseId,
+          {
+              $push: {
+                  videoLectures: {
+                      video: videoUrl,
+                      title: title
+                  }
+              }
+          },
+          { new: true } 
+      );
+      res.send({ message: 'Video uploaded successfully!' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: 'Failed to upload video' });
+  }
+};
+
+const getvideo = async (req, res) => {
+  const { courseId, videoId } = req.params;
+
+  try {
+    const course = await courseModel.findById(courseId);
+    const video = course.videoLectures.id(videoId).video;
+
+    if (!video) {
+      return res.status(404).send({ message: 'Video not found' });
+    }
+
+    const readStream = Buffer.from(video, 'binary');
+    res.writeHead(200, {
+      'Content-Type': 'video/mp4',
+      'Content-Length': readStream.length,
+    });
+    res.end(readStream);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: 'Failed to fetch video' });
+  }
+};
+
+
+module.exports={teacherSignup,teacherLogin,forgetpassword,getvideo,uploadvideo,sendcode,update,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}

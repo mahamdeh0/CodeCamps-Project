@@ -8,7 +8,10 @@ const problemSchema = new mongoose.Schema({
     answer: {
         type: String,
         required: true
-    }
+    },
+    Potentialanswers: {
+        type:[String],
+    } 
 }, { timestamps: true });
 
 const ProblemModel = mongoose.model('Problem', problemSchema);

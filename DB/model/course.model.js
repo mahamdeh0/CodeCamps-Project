@@ -43,9 +43,14 @@ const courseSchema = new mongoose.Schema({
     },
     CriditHoure:{
         type: Number
-    }
-
+    },
+    videoLectures: [{ 
+        video: {
+        type: String,
+        title: String
+    } }]
 },{timestamps:true});
 
     const courseModel = mongoose.model('course',courseSchema);
     module.exports={courseModel};
+
