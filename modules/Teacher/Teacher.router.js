@@ -9,8 +9,7 @@ const { myMulter, HME } = require('../../services/multer');
 router.post('/signUp',validation(teacherSignup),authcontroller.teacherSignup);
 router.post('/signin',authcontroller.teacherLogin);
 
-
-router.get('/getteacher',authcontroller.getTeacherdata);
+router.get('/getteacher',teacherauth(),authcontroller.getTeacherdata);
 router.get('/confirmEmail/:token',authcontroller.teacherconfirmEmail);
 router.patch('/teacherconfirmEmailbycode',authcontroller.userconfirmEmailbycode);
 router.patch('/Update/:id', teacherauth(),authcontroller.update);

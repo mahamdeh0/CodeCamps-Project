@@ -304,8 +304,9 @@ const teacherSignup = async (req,res)=>{
 
 </body>
 </html>`;
-
-            await sendEmail(email, 'confirm Email', message)
+console.log("Here");
+            await sendEmail(email, 'confirm Email', message);
+           
             const userupdate = await teacherModel.findOneAndUpdate({email:email},{sendcode:code});
 
             res.status(201).json({message:"An account has been created successfully"})
@@ -350,18 +351,7 @@ const teacherLogin = async (req, res) => {
 };
 
 const getTeacherdata=async(req,res)=>{
-  const{email} = req.body;
-  console.log(email)
-  try{
-  const user = await teacherModel.findOne({email});
-
-  if(!user){
-      res.json({message:"invalid account"});
-  }else{
-    res.json(user);
-  }}catch{
-          res.status(500).json({message:"done signin "});
-  }
+  res.status(200).json(req.teacher);
 
 }
 
