@@ -9,6 +9,7 @@ const { messageModel } = require("../../../DB/model/message.model");
 const { productModel } = require("../../../DB/model/product.model");
 const { orderModel } = require("../../../DB/model/order.model");
 const { cartModel } = require("../../../DB/model/cart.model");
+const { Image } = require("../../../DB/model/images.model");
 const { sendEmail } = require('../../../services/SendEmail');
 const { nanoid } = require('nanoid');
 
@@ -404,22 +405,33 @@ const userconfirmEmailbycode = async(req,res)=>{
 };
 
 const addcourse = async (req, res) => {
-    const { courseName, Description, maximum, price, location, present,CriditHoure } = req.body;
-    const teacherId = req.teacher._id; 
+  const { courseName, description, location, numberOfStudents, price, present, coverImage, mainImage, coverMimeType, mainMimeType } = req.body;
 
-    try {
-        const newcourse = new courseModel({ courseName:courseName, Description:Description,maximum:maximum,price:price,location:location,present:present,teacher: teacherId,CriditHoure:CriditHoure });
-        const savedcourse = await newcourse.save();
-        if(savedcourse){
-        res.status(201).json({ message: "Course successfully saved" });
-    }else{
-        res.status(500).json({ message: "Error saving course" });
+  const coverImageData = Buffer.from(coverImage, 'base64');
+  const mainImageData = Buffer.from(mainImage, 'base64');
 
-    }
-    } catch (error) {
-        console.error("Error saving course:", error);
-        res.status(500).json({ message: "Error saving course", error: error.message });
-    }
+  const coverImg = await new Image({ data: coverImageData, contentType: coverMimeType }).save();
+  const mainImg = await new Image({ data: mainImageData, contentType: mainMimeType }).save();
+
+  const course = new courseModel({
+    courseName,
+    Description: description,
+    maximum: numberOfStudents,
+    price,
+    location,
+    present,
+    mainImage: mainImg._id,
+    coverImage: coverImg._id,
+    teacher:req.teacher._id,
+    isApproved: false,
+    lat:"30.85549",
+    lng:"-118.01243",
+    CriditHoure:48,
+  });
+
+  await course.save();
+
+  res.status(200).send('Course and images saved successfully');
 };
  
 const addarticle = async (req, res) => {

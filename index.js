@@ -1,8 +1,9 @@
 require('dotenv').config()
 const express = require('express')
+const bodyParser = require('body-parser');
 const app = express()
 const port = 3000;
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 
 const appRouter = require('./modules/index.router');
 const { connectDB } = require('./DB/connection');

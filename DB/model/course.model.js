@@ -22,9 +22,15 @@ const courseSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    lat:{
+        type:String,
+    },
+    lng:{
+        type:String,
+    },
     present :{
         type:String,
-        enum:['entirely','remotely'],
+        enum:['inPerson','remotely'],
         default:'remotely',
         required:true
     },    
@@ -32,9 +38,13 @@ const courseSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'teacher', 
     },
-    admin: { 
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'admin', 
+    mainImage :{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Image'
+    },
+    coverImage :{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Image'
     },
     isApproved: { 
         type: Boolean,
@@ -44,11 +54,6 @@ const courseSchema = new mongoose.Schema({
     CriditHoure:{
         type: Number
     },
-    videoLectures: [{ 
-        video: {
-        type: String,
-        title: String
-    } }]
 },{timestamps:true});
 
     const courseModel = mongoose.model('course',courseSchema);
