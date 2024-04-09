@@ -23,6 +23,8 @@ router.post('/addBook', teacherauth(), myMulter(['application/pdf']).single('boo
 router.post('/upload-video/:courseId', teacherauth(), myMulter(['video/mp4']).single('videoUrl'), HME, authcontroller.uploadvideo);
 router.get('/course/:courseId/:videoId',authcontroller.getvideo);
  
+router.put('/updateCourse',teacherauth(),authcontroller.updateCourse);
+
 router.get('/viewTeacherRating',teacherauth(),authcontroller.viewTeacherRating);
 router.get('/myCourses',teacherauth(),authcontroller.viewCourses);
 router.get('/viewproduct',authcontroller.viewproduct);

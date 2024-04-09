@@ -405,35 +405,51 @@ const userconfirmEmailbycode = async(req,res)=>{
 };
 
 const addcourse = async (req, res) => {
-  const { courseName, description, location, numberOfStudents, price, present, coverImage, mainImage, coverMimeType, mainMimeType } = req.body;
+  try {
+    const { 
+      courseName, 
+      description, 
+      location, 
+      numberOfStudents, 
+      price, 
+      present, 
+      coverImage, 
+      mainImage, 
+      coverMimeType, 
+      mainMimeType 
+    } = req.body;
 
-  const coverImageData = Buffer.from(coverImage, 'base64');
-  const mainImageData = Buffer.from(mainImage, 'base64');
+    const coverImageData = Buffer.from(coverImage, 'base64');
+    const mainImageData = Buffer.from(mainImage, 'base64');
 
-  const coverImg = await new Image({ data: coverImageData, contentType: coverMimeType }).save();
-  const mainImg = await new Image({ data: mainImageData, contentType: mainMimeType }).save();
+    const coverImg = await new Image({ data: coverImageData, contentType: coverMimeType }).save();
+    const mainImg = await new Image({ data: mainImageData, contentType: mainMimeType }).save();
 
-  const course = new courseModel({
-    courseName,
-    Description: description,
-    maximum: numberOfStudents,
-    price,
-    location,
-    present,
-    mainImage: mainImg._id,
-    coverImage: coverImg._id,
-    teacher:req.teacher._id,
-    isApproved: false,
-    lat:"30.85549",
-    lng:"-118.01243",
-    CriditHoure:48,
-  });
+    const course = new courseModel({
+      courseName,
+      Description: description,
+      maximum: numberOfStudents,
+      price,
+      location,
+      present,
+      mainImage: mainImg._id,
+      coverImage: coverImg._id,
+      teacher: req.teacher._id,
+      isApproved: false,
+      lat: "30.85549",
+      lng: "-118.01243",
+      CriditHoure: 48,
+    });
 
-  await course.save();
+    await course.save();
 
-  res.status(200).send('Course and images saved successfully');
+    res.status(200).send('Course and images saved successfully');
+  } catch (error) {
+    console.error('Error adding course:', error);
+    res.status(500).send('An error occurred while saving the course');
+  }
 };
- 
+
 const addarticle = async (req, res) => {
     const { articleName, Description } = req.body;
     const teacherId = req.teacher._id; 
@@ -1064,5 +1080,54 @@ const getvideo = async (req, res) => {
   }
 };
 
+const updateCourse = async (req, res) => {
+  const { 
+    courseId, 
+    courseName, 
+    description, 
+    location, 
+    numberOfStudents, 
+    price, 
+    present, 
+    coverImage,  
+    mainImage, 
+    coverMimeType, 
+    mainMimeType 
+  } = req.body;
 
-module.exports={teacherSignup,teacherLogin,forgetpassword,getvideo,uploadvideo,sendcode,update,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}
+  try {
+    const course = await courseModel.findById(courseId);
+    if (!course) {
+      return res.status(404).send('Course not found');
+    }
+
+    if (courseName) course.courseName = courseName;
+    if (description) course.Description = description;
+    if (location) course.location = location;
+    if (numberOfStudents) course.maximum = numberOfStudents;
+    if (price) course.price = price;
+    if (present !== undefined) course.present = present; 
+
+    if (coverImage) {
+      const coverImageData = Buffer.from(coverImage, 'base64');
+      const coverImg = await new Image({ data: coverImageData, contentType: coverMimeType }).save();
+      course.coverImage = coverImg._id;
+    }
+
+    if (mainImage) {
+      const mainImageData = Buffer.from(mainImage, 'base64');
+      const mainImg = await new Image({ data: mainImageData, contentType: mainMimeType }).save();
+      course.mainImage = mainImg._id;
+    }
+
+
+    await course.save();
+
+    res.status(200).send('Course updated successfully');
+  } catch (error) {
+    console.error('Error updating course:', error);
+    res.status(500).send('An error occurred while updating the course');
+  }
+};
+
+module.exports={teacherSignup,teacherLogin,forgetpassword,getvideo,uploadvideo,sendcode,update,updateCourse,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}
