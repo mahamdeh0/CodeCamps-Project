@@ -1,5 +1,7 @@
 let bcrypt = require('bcryptjs');
+const fs = require('fs');
 let jwt = require('jsonwebtoken');
+const { Types: { ObjectId } } = require('mongoose');
 const { teacherModel } = require("../../../DB/model/Teacher.model");
 const { courseModel } = require("../../../DB/model/course.model");
 const { articleModel } = require("../../../DB/model/article.model");
@@ -425,13 +427,13 @@ const addcourse = async (req, res) => {
     const coverImg = await new Image({ data: coverImageData, contentType: coverMimeType }).save();
     const mainImg = await new Image({ data: mainImageData, contentType: mainMimeType }).save();
 
-    const course = new courseModel({
+    const course = await new courseModel({
       courseName,
       Description: description,
       maximum: numberOfStudents,
       price,
       location,
-      present,
+      present:"remotely",
       mainImage: mainImg._id,
       coverImage: coverImg._id,
       teacher: req.teacher._id,
@@ -439,11 +441,11 @@ const addcourse = async (req, res) => {
       lat: "30.85549",
       lng: "-118.01243",
       CriditHoure: 48,
-    });
+    }).save();
 
-    await course.save();
-
-    res.status(200).send('Course and images saved successfully');
+    
+console.log(course);
+    res.status(200).json({msg:'Course and images saved successfully',courseId:course._id});
   } catch (error) {
     console.error('Error adding course:', error);
     res.status(500).send('An error occurred while saving the course');
@@ -1031,29 +1033,47 @@ const myorders  = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch order history', error: error.toString() });
   }
 };
-
 const uploadvideo = async (req, res) => {
+  console.log("Here");
   const { courseId } = req.params;
   const { title } = req.body;
-  const videoUrl = req.file.buffer; 
+  const id =  new ObjectId(courseId);
+  console.log(id);
+  // Generate a unique filename for the video
+  const videoFileName = Date.now() + '_' + req.file.originalname;
+  const videoFilePath = `uploads/${videoFileName}`;
 
   try {
-      await courseModel.findByIdAndUpdate(
-          courseId,
-          {
-              $push: {
-                  videoLectures: {
-                      video: videoUrl,
-                      title: title
-                  }
-              }
-          },
-          { new: true } 
-      );
-      res.send({ message: 'Video uploaded successfully!' });
+      // Write the video buffer to disk
+      fs.writeFile(videoFilePath, req.file.buffer, async (err) => {
+          if (err) {
+              console.error(err);
+              return res.status(500).send({ message: 'Failed to save video file' });
+          }
+
+          // Update the database with the video file path
+          try {
+              await courseModel.findByIdAndUpdate(
+                id,
+                  {
+                      $push: {
+                          videoLectures: {
+                              video: videoFilePath, // Use the file path instead of buffer
+                              title: title
+                          }
+                      }
+                  },
+                  { new: true }
+              );
+              res.status(200).send({ message: 'Video uploaded successfully!' });
+          } catch (error) {
+              console.error(error);
+              res.status(500).send({ message: 'Failed to upload video' });
+          }
+      });
   } catch (error) {
       console.error(error);
-      res.status(500).send({ message: 'Failed to upload video' });
+      res.status(500).send({ message: 'Failed to save video file' });
   }
 };
 

@@ -10,7 +10,6 @@ const HME = (error, req, res, next) => {
 
 function myMulter(allowedTypes) {
   const storage = multer.memoryStorage();
-
   function fileFilter(req, file, cb) {
       if (allowedTypes.includes(file.mimetype)) {
           cb(null, true);
