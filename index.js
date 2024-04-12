@@ -1,5 +1,6 @@
 require('dotenv').config()
 const express = require('express')
+const path = require('path');
 const bodyParser = require('body-parser');
 const app = express()
 const port = 3000;
@@ -9,6 +10,7 @@ const appRouter = require('./modules/index.router');
 const { connectDB } = require('./DB/connection');
 const BaseUrl=process.env.BaseUrl;
 connectDB();
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(`${BaseUrl}/Teacher`,appRouter.TeacherRouter);
 app.use(`${BaseUrl}/User`,appRouter.userRouter);
@@ -19,8 +21,8 @@ app.use('*',(req,res)=>{
 });    
 
 
-     
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+   
+app.listen(port, () => {console.log(`Example app listening on port ${port}!`)})
 
  
 

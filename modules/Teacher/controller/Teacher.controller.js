@@ -1,5 +1,6 @@
 let bcrypt = require('bcryptjs');
 const fs = require('fs');
+const path = require('path');
 let jwt = require('jsonwebtoken');
 const { Types: { ObjectId } } = require('mongoose');
 const { teacherModel } = require("../../../DB/model/Teacher.model");
@@ -523,6 +524,48 @@ const viewTeacherRating = async (req, res) => {
         res.status(500).json({ message: "Error fetching teacher rating", error: error.message });
     }
 };
+const getCourseVideos = async (req, res) => {
+  const { courseId } = req.params;
+  console.log(courseId);
+  try {
+    const course = await courseModel.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Fetch thumbnail images for each video lecture
+    const videoLecturesWithThumbnails = await Promise.all(course.videoLectures.map(async (lecture) => {
+      // Fetch the image based on the thumbnail ID
+      const thumbnailImage = await Image.findById(lecture.thumbnail);
+      console.log(lecture.duration);
+      if (thumbnailImage) {
+        // Convert the thumbnail data to base64
+        const thumbnailData = thumbnailImage.data.toString('base64');
+        
+        // Add the base64 thumbnail data and content type to the video lecture object
+        return {
+          ...lecture.toObject(),
+          thumbnailData: thumbnailImage.data.toString('base64'),
+          thumbnailContentType: thumbnailImage.contentType
+        };
+       
+      } else {
+        return {
+          ...lecture.toObject(),
+          thumbnailData: null,
+          thumbnailContentType: null
+        };
+      }
+    }));
+
+    // Return the video lectures with thumbnail data
+    res.status(200).json(videoLecturesWithThumbnails);
+  } catch (err) {
+    console.error('Error fetching course videos:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 
 const viewCourses = async (req, res) => {
     const teacherId = req.teacher._id;
@@ -535,12 +578,22 @@ const viewCourses = async (req, res) => {
                 message: "Courses fetched successfully.",
                 courses: courses.map(course => ({
                     id: course._id,
-                    name: course.courseName,
+                    courseName: course.courseName,
                     description: course.Description,
                     maximum: course.maximum,
                     price: course.price,
                     location: course.location,
-                    present: course.present
+                    present: course.present,
+                    lat: course.lat,
+                    lng: course.lng,
+                    teacher:course.teacher,
+                    mainImage:course.mainImage,
+                    coverImage:course.coverImage,
+                    CriditHoure: course.CriditHoure,
+                    isApproved: course.isApproved,
+                    videoLectures:course.videoLectures,
+
+
                 }))
             });
         } else {
@@ -1034,18 +1087,26 @@ const myorders  = async (req, res) => {
   }
 };
 const uploadvideo = async (req, res) => {
-  console.log("Here");
   const { courseId } = req.params;
   const { title } = req.body;
+  const { description } = req.body;
+  const { duration } = req.body;
+  const { thumbnailBase64 } = req.body;
+  const { thumbnailMimeType } = req.body;
   const id =  new ObjectId(courseId);
-  console.log(id);
-  // Generate a unique filename for the video
-  const videoFileName = Date.now() + '_' + req.file.originalname;
-  const videoFilePath = `uploads/${videoFileName}`;
 
+
+
+  const thumbnailData = Buffer.from(thumbnailBase64, 'base64');
+  const videoFileName = Date.now() + '_' + req.file.originalname;
+  const videoFilePath = `${videoFileName}`;
+  const thumbnailImage = await new Image({ data: thumbnailData, contentType: thumbnailMimeType }).save();
+  const uploadDirectory = path.join(__dirname, '..', '..', '..', 'uploads');
+
+  const videoFileSavePath = path.join(uploadDirectory, videoFileName);
   try {
       // Write the video buffer to disk
-      fs.writeFile(videoFilePath, req.file.buffer, async (err) => {
+      fs.writeFile(videoFileSavePath, req.file.buffer, async (err) => {
           if (err) {
               console.error(err);
               return res.status(500).send({ message: 'Failed to save video file' });
@@ -1059,7 +1120,11 @@ const uploadvideo = async (req, res) => {
                       $push: {
                           videoLectures: {
                               video: videoFilePath, // Use the file path instead of buffer
-                              title: title
+                              title: title,
+                              thumbnail:thumbnailImage._id,
+                              description:description,
+                              duration:duration,
+
                           }
                       }
                   },
@@ -1079,21 +1144,54 @@ const uploadvideo = async (req, res) => {
 
 const getvideo = async (req, res) => {
   const { courseId, videoId } = req.params;
-
+  const id =  new ObjectId(courseId);
   try {
-    const course = await courseModel.findById(courseId);
-    const video = course.videoLectures.id(videoId).video;
-
-    if (!video) {
+    const course = await courseModel.findById({_id:id});
+    
+    if (!course) {
+      return res.status(404).send({ message: 'Course not found' });
+    }
+    
+    const videoInfo = course.videoLectures.id(videoId);
+      console.log(videoInfo);
+    if (!videoInfo) {
       return res.status(404).send({ message: 'Video not found' });
     }
+    
+    const videoPath = videoInfo.video;
+    const videoFilePath = path.join(__dirname, '..', videoPath);
+    
+    if (!fs.existsSync(videoFilePath)) {
+      return res.status(404).send({ message: 'Video file not found' });
+    }
 
-    const readStream = Buffer.from(video, 'binary');
-    res.writeHead(200, {
-      'Content-Type': 'video/mp4',
-      'Content-Length': readStream.length,
-    });
-    res.end(readStream);
+    const stat = fs.statSync(videoFilePath);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+
+    if (range) {
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunksize = (end - start) + 1;
+      const file = fs.createReadStream(videoFilePath, { start, end });
+      const head = {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunksize,
+        'Content-Type': 'video/mp4',
+      };
+
+      res.writeHead(206, head);
+      file.pipe(res);
+    } else {
+      const head = {
+        'Content-Length': fileSize,
+        'Content-Type': 'video/mp4',
+      };
+      res.writeHead(200, head);
+      fs.createReadStream(videoFilePath).pipe(res);
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: 'Failed to fetch video' });
@@ -1150,4 +1248,4 @@ const updateCourse = async (req, res) => {
   }
 };
 
-module.exports={teacherSignup,teacherLogin,forgetpassword,getvideo,uploadvideo,sendcode,update,updateCourse,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}
+module.exports={getCourseVideos,teacherSignup,teacherLogin,forgetpassword,getvideo,uploadvideo,sendcode,update,updateCourse,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}

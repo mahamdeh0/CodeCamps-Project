@@ -27,6 +27,7 @@ router.put('/updateCourse',teacherauth(),authcontroller.updateCourse);
 
 router.get('/viewTeacherRating',teacherauth(),authcontroller.viewTeacherRating);
 router.get('/myCourses',teacherauth(),authcontroller.viewCourses);
+router.get('/getCourseVideos/:courseId',teacherauth(),authcontroller.getCourseVideos);
 router.get('/viewproduct',authcontroller.viewproduct);
 router.get('/viewCart', teacherauth(), authcontroller.viewCart);
 router.post('/removeFromCart', teacherauth(), authcontroller.removeFromCart);

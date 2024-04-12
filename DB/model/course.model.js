@@ -60,6 +60,16 @@ const courseSchema = new mongoose.Schema({
         },
         title: {
             type: String
+        },
+        thumbnail:{
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'Image'
+        },
+        description:{
+            type: String
+        },
+        duration:{
+            type: String
         }
     }]
     
