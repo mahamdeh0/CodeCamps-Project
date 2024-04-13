@@ -568,42 +568,63 @@ const getCourseVideos = async (req, res) => {
 
 
 const viewCourses = async (req, res) => {
-    const teacherId = req.teacher._id;
+  const teacherId = req.teacher._id;
 
-    try {
-        const courses = await courseModel.find({ teacher: teacherId });
+  try {
+      const courses = await courseModel.find({ teacher: teacherId });
 
-        if (courses.length > 0) {
-            res.status(200).json({
-                message: "Courses fetched successfully.",
-                courses: courses.map(course => ({
-                    id: course._id,
-                    courseName: course.courseName,
-                    description: course.Description,
-                    maximum: course.maximum,
-                    price: course.price,
-                    location: course.location,
-                    present: course.present,
-                    lat: course.lat,
-                    lng: course.lng,
-                    teacher:course.teacher,
-                    mainImage:course.mainImage,
-                    coverImage:course.coverImage,
-                    CriditHoure: course.CriditHoure,
-                    isApproved: course.isApproved,
-                    videoLectures:course.videoLectures,
+      if (courses.length > 0) {
+          const updatedCourses = await Promise.all(courses.map(async (course) => {
+            const mainImage = await Image.findById(course.mainImage);
+            const coverImage = await Image.findById(course.coverImage);
+            const mainImageData = mainImage ? mainImage.data.toString('base64') : null;
+                const coverImageData = coverImage ? coverImage.data.toString('base64') : null;
+              const updatedVideoLectures = await Promise.all(course.videoLectures.map(async (lecture) => {
+                  const thumbnailImage = await Image.findById(lecture.thumbnail);
+                  const thumbnailImageData = thumbnailImage ? thumbnailImage.data.toString('base64') : null;
 
+                  return {
+                    _id:lecture._id,
+                      video: lecture.video,
+                      title: lecture.title,
+                      thumbnailData:thumbnailImageData,
+                      description: lecture.description,
+                      duration: lecture.duration,
+                  };
+              }));
 
-                }))
-            });
-        } else {
-            res.status(404).json({ message: "No courses found for this instructor." });
-        }
-    } catch (error) {
-        console.error("Error fetching instructor courses:", error);
-        res.status(500).json({ message: "Error fetching instructor courses", error: error.message });
-    }
+              return {
+                  id: course._id,
+                  courseName: course.courseName,
+                  description: course.Description,
+                  maximum: course.maximum,
+                  price: course.price,
+                  location: course.location,
+                  present: course.present,
+                  lat: course.lat,
+                  lng: course.lng,
+                  teacher: course.teacher,
+                  mainImage:mainImageData,
+                  coverImage: coverImageData,
+                  CriditHoure: course.CriditHoure,
+                  isApproved: course.isApproved,
+                  videoLectures: updatedVideoLectures,
+              };
+          }));
+
+          res.status(200).json({
+              message: "Courses fetched successfully.",
+              courses: updatedCourses,
+          });
+      } else {
+          res.status(404).json({ message: "No courses found for this instructor." });
+      }
+  } catch (error) {
+      console.error("Error fetching instructor courses:", error);
+      res.status(500).json({ message: "Error fetching instructor courses", error: error.message });
+  }
 };
+
 
 const sendMessageToUser = async (req, res) => {
   const { userId, message } = req.body;

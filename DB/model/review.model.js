@@ -11,11 +11,7 @@ const reviewSchema = new mongoose.Schema({
         ref: 'course',
         required: true
     },
-    teacher: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'teacher',
-        required: true
-    },
+
     rating: {
         type: Number,
         required: true,
