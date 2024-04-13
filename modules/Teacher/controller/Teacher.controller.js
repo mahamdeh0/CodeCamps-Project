@@ -453,6 +453,25 @@ console.log(course);
   }
 };
 
+const deleteCourse = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const course = await courseModel.findByIdAndDelete(courseId);
+
+    if (!course) {
+      return res.status(404).json({ msg: 'Course not found' });
+    }
+
+    res.status(200).json({ msg: 'Course deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    res.status(500).send('An error occurred while deleting the course');
+  }
+};
+
+
+
+
 const addarticle = async (req, res) => {
     const { articleName, Description } = req.body;
     const teacherId = req.teacher._id; 
@@ -1248,4 +1267,14 @@ const updateCourse = async (req, res) => {
   }
 };
 
-module.exports={getCourseVideos,teacherSignup,teacherLogin,forgetpassword,getvideo,uploadvideo,sendcode,update,updateCourse,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}
+const getAllCourses = async (req, res) => {
+  try {
+    const courses = await courseModel.find({});
+    res.status(200).json(courses);
+  } catch (error) {
+    console.error('Error retrieving courses:', error);
+    res.status(500).send('An error occurred while fetching the courses');
+  }
+};
+
+module.exports={getCourseVideos,teacherSignup,teacherLogin,forgetpassword,getvideo,deleteCourse,getAllCourses,uploadvideo,sendcode,update,updateCourse,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}

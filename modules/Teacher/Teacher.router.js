@@ -24,6 +24,8 @@ router.post('/upload-video/:courseId', teacherauth(), myMulter(['video/mp4']).si
 router.get('/course/:courseId/:videoId',authcontroller.getvideo);
  
 router.put('/updateCourse',teacherauth(),authcontroller.updateCourse);
+router.delete('/courses/:id',teacherauth(), authcontroller.deleteCourse);
+router.get('/courses', authcontroller.getAllCourses);
 
 router.get('/viewTeacherRating',teacherauth(),authcontroller.viewTeacherRating);
 router.get('/myCourses',teacherauth(),authcontroller.viewCourses);
