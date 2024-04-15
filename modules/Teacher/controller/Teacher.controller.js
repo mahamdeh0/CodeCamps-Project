@@ -12,6 +12,7 @@ const { messageModel } = require("../../../DB/model/message.model");
 const { productModel } = require("../../../DB/model/product.model");
 const { orderModel } = require("../../../DB/model/order.model");
 const { cartModel } = require("../../../DB/model/cart.model");
+const { SubscriptionModel } = require("../../../DB/model/subscription.model");
 const { Image } = require("../../../DB/model/images.model");
 const { sendEmail } = require('../../../services/SendEmail');
 const { nanoid } = require('nanoid');
@@ -452,25 +453,6 @@ console.log(course);
     res.status(500).send('An error occurred while saving the course');
   }
 };
-
-const deleteCourse = async (req, res) => {
-  try {
-    const courseId = req.params.id;
-    const course = await courseModel.findByIdAndDelete(courseId);
-
-    if (!course) {
-      return res.status(404).json({ msg: 'Course not found' });
-    }
-
-    res.status(200).json({ msg: 'Course deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting course:', error);
-    res.status(500).send('An error occurred while deleting the course');
-  }
-};
-
-
-
 
 const addarticle = async (req, res) => {
     const { articleName, Description } = req.body;
@@ -1126,6 +1108,7 @@ const myorders  = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch order history', error: error.toString() });
   }
 };
+
 const uploadvideo = async (req, res) => {
   const { courseId } = req.params;
   const { title } = req.body;
@@ -1298,4 +1281,72 @@ const getAllCourses = async (req, res) => {
   }
 };
 
-module.exports={getCourseVideos,teacherSignup,teacherLogin,forgetpassword,getvideo,deleteCourse,getAllCourses,uploadvideo,sendcode,update,updateCourse,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}
+const deleteCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    const course = await courseModel.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ msg: 'Course not found' });
+    }
+
+    if (course.coverImage) {
+      await Image.findByIdAndDelete(course.coverImage);
+    }
+    if (course.mainImage) {
+      await Image.findByIdAndDelete(course.mainImage);
+    }
+
+    await courseModel.findByIdAndDelete(courseId);
+
+    await enrollmentModel.deleteMany({ course: courseId });
+    await reviewModel.deleteMany({ course: courseId });
+   
+    console.log(`Course and related data deleted successfully.`);
+    res.status(200).json({ msg: 'Course and related data deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    res.status(500).send('An error occurred while deleting the course');
+  }
+};
+
+const getCourseParticipants = async (req, res) => {
+  const { courseId } = req.params;  
+
+  try {
+      const subscriptions = await SubscriptionModel.find({ course: courseId })
+          .populate('user', 'userName email gender')  
+          .exec();
+
+      if (!subscriptions.length) {
+          return res.status(404).json({ message: "No participants found for this course" });
+      }
+
+      const participants = subscriptions.map(subscription => subscription.user);
+
+      res.status(200).json(participants);
+  } catch (error) {
+      console.error('Error retrieving course participants:', error);
+      res.status(500).json({ message: "An error occurred while fetching course participants" });
+  }
+};
+
+const unsubscribeFromCourse = async (req, res) => {
+  const { courseId, userId } = req.params;  
+
+  try {
+      const subscription = await SubscriptionModel.findOne({ user: userId, course: courseId });
+      if (!subscription) {
+          return res.status(404).json({ message: "Subscription not found or user is not subscribed to this course" });
+      }
+
+      await SubscriptionModel.findByIdAndDelete(subscription._id);
+
+      res.status(200).json({ message: "Unsubscribed successfully" });
+  } catch (error) {
+      console.error('Error unsubscribing from course:', error);
+      res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports={getCourseVideos,teacherSignup,teacherLogin,forgetpassword,getCourseParticipants,getvideo,unsubscribeFromCourse,deleteCourse,getAllCourses,uploadvideo,sendcode,update,updateCourse,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}

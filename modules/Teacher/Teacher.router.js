@@ -26,6 +26,8 @@ router.get('/course/:courseId/:videoId',authcontroller.getvideo);
 router.put('/updateCourse',teacherauth(),authcontroller.updateCourse);
 router.delete('/courses/:id',teacherauth(), authcontroller.deleteCourse);
 router.get('/courses', authcontroller.getAllCourses);
+router.get('/courses/:courseId/participants', authcontroller.getCourseParticipants);
+router.delete('/courses/:courseId/unsubscribe/:userId', authcontroller.unsubscribeFromCourse);
 
 router.get('/viewTeacherRating',teacherauth(),authcontroller.viewTeacherRating);
 router.get('/myCourses',teacherauth(),authcontroller.viewCourses);

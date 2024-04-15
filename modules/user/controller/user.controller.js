@@ -319,8 +319,6 @@ const userSignup = async (req,res)=>{
     }
 };
 
-
-
 const userLogin = async (req, res) => {
 
   const { email, password } =  req.body; 
