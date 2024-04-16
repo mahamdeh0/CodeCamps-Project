@@ -5,7 +5,7 @@ const { courseModel } = require("../../../DB/model/course.model");
 const { messageModel } = require("../../../DB/model/message.model");
 const { SubscriptionModel } = require("../../../DB/model/subscription.model");
 const { ReviewModel } = require("../../../DB/model/review.model");
-const { ProblemModel } = require("../../../DB/model/problem.model");
+const { QuizModel } = require("../../../DB/model/quiz.model");
 const { articleModel } = require("../../../DB/model/article.model");
 const { BookModel } = require("../../../DB/model/book.model");
 const { orderModel } = require("../../../DB/model/order.model");
@@ -576,7 +576,7 @@ const submitSolution = async (req, res) => {
     const userId = req.user._id;
 
     try {
-        const problem = await ProblemModel.findById(problemId);
+        const problem = await QuizModel.findById(problemId);
         if (!problem) {
             return res.status(404).json({ message: "Problem not found" });
         }

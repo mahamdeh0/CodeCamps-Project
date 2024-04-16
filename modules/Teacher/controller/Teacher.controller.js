@@ -13,6 +13,7 @@ const { productModel } = require("../../../DB/model/product.model");
 const { orderModel } = require("../../../DB/model/order.model");
 const { cartModel } = require("../../../DB/model/cart.model");
 const { SubscriptionModel } = require("../../../DB/model/subscription.model");
+const { QuizModel } = require("../../../DB/model/quiz.model");
 const { Image } = require("../../../DB/model/images.model");
 const { sendEmail } = require('../../../services/SendEmail');
 const { nanoid } = require('nanoid');
@@ -526,6 +527,7 @@ const viewTeacherRating = async (req, res) => {
         res.status(500).json({ message: "Error fetching teacher rating", error: error.message });
     }
 };
+
 const getCourseVideos = async (req, res) => {
   const { courseId } = req.params;
   console.log(courseId);
@@ -567,7 +569,6 @@ const getCourseVideos = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-
 
 const viewCourses = async (req, res) => {
   const teacherId = req.teacher._id;
@@ -627,7 +628,6 @@ const viewCourses = async (req, res) => {
       res.status(500).json({ message: "Error fetching instructor courses", error: error.message });
   }
 };
-
 
 const sendMessageToUser = async (req, res) => {
   const { userId, message } = req.body;
@@ -1396,4 +1396,61 @@ const unsubscribeFromCourse = async (req, res) => {
   }
 };
 
-module.exports={getCourseVideos,teacherSignup,teacherLogin,forgetpassword,getCourseParticipants,getvideo,unsubscribeFromCourse,deleteCourse,getAllCourses,uploadvideo,sendcode,update,updateCourse,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}
+const addQuiz = async (req, res) => {
+  try {
+    const { name, description, problems } = req.body;
+
+    if (!name || !description || !Array.isArray(problems)) {
+        res.status(400).send('Missing or invalid data.');
+        return;
+    }
+
+    const newQuiz = new QuizModel({
+        name,
+        description,
+        problems
+    });
+
+    await newQuiz.save();
+
+    res.status(201).send(newQuiz);
+} catch (error) {
+    res.status(500).send('Server error: ' + error.message);
+}
+};
+
+const displayQuiz = async (req, res) => {
+  try {
+    const quizId = req.params.id; 
+
+    const quiz = await QuizModel.findById(quizId).exec();
+
+    if (!quiz) {
+      res.status(404).send('Quiz not found');
+      return;
+    }
+
+    res.status(200).send(quiz);
+  } catch (error) {
+    res.status(500).send('Server error: ' + error.message);
+  }
+};
+
+const getAllQuizzes = async (req, res) => {
+  try {
+
+    const quizzes = await QuizModel.find({}, 'name description').exec();
+
+    const simplifiedQuizzes = quizzes.map(quiz => ({
+      id: quiz._id,
+      name: quiz.name,
+      description: quiz.description
+    }));
+
+    res.status(200).json(simplifiedQuizzes);
+  } catch (error) {
+    res.status(500).send('Server error: ' + error.message);
+  }
+};
+
+module.exports={getCourseVideos,teacherSignup,teacherLogin,addQuiz,getAllQuizzes,displayQuiz,forgetpassword,getCourseParticipants,getvideo,unsubscribeFromCourse,deleteCourse,getAllCourses,uploadvideo,sendcode,update,updateCourse,removeFromCart,viewproduct,addToCart,viewCart,makeorder,myorders,addcourse,addarticle,addBook,viewTeacherRating,viewCourses,teacherconfirmEmail,userconfirmEmailbycode,deleteteacher,getConversationHistory,sendMessageToUser,getTeacherdata}

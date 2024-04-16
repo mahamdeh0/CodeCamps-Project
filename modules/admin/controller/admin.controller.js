@@ -3,7 +3,7 @@ let jwt = require('jsonwebtoken');
 const { adminModel } = require("../../../DB/model/Admin.model");
 const { courseModel } = require("../../../DB/model/course.model");
 const { articleModel } = require("../../../DB/model/article.model");
-const { ProblemModel } = require("../../../DB/model/problem.model");
+const { QuizModel } = require("../../../DB/model/quiz.model");
 const { userModel } = require("../../../DB/model/user.model");
 const { teacherModel } = require("../../../DB/model/Teacher.model");
 const { productModel } = require("../../../DB/model/product.model");
@@ -304,7 +304,7 @@ const adminSignup = async (req,res)=>{
 
     }
 }
- 
+  
 const adminLogin = async (req,res)=>{
 
     const{email,password} = req.body;
@@ -428,24 +428,27 @@ const approveCourse = async (req, res) => {
     }
 };
 
-const addproblem = async (req, res) => {
-    const { description, answer } = req.body;
+const addQuiz = async (req, res) => {
+  try {
+    const { name, description, problems } = req.body;
 
-    try {
-        const newProblem = new ProblemModel({
-            description,
-            answer,
-        });
-
-        const savedProblem = await newProblem.save();
-        res.status(201).json({
-            message: "Problem added successfully",
-            problem: savedProblem
-        });
-    } catch (error) {
-        console.error('Error adding problem:', error);
-        res.status(500).json({ message: "Error adding problem", error: error.message });
+    if (!name || !description || !Array.isArray(problems)) {
+        res.status(400).send('Missing or invalid data.');
+        return;
     }
+
+    const newQuiz = new QuizModel({
+        name,
+        description,
+        problems
+    });
+
+    await newQuiz.save();
+
+    res.status(201).send(newQuiz);
+} catch (error) {
+    res.status(500).send('Server error: ' + error.message);
+}
 };
 
 const viewAllUsersAndTeachersAndCourses = async (req, res) => {
@@ -546,4 +549,4 @@ const updateproduct = async (req, res) => {
   }
 };
 
-module.exports={adminSignup,adminLogin,addProduct,deleteproduct,updateproduct,approveCourse,addcourse,addarticle,addproblem,viewAllUsersAndTeachersAndCourses,adminconfirmEmail}
+module.exports={adminSignup,adminLogin,addProduct,deleteproduct,updateproduct,approveCourse,addcourse,addarticle,addQuiz,viewAllUsersAndTeachersAndCourses,adminconfirmEmail}
