@@ -51,6 +51,10 @@ const courseSchema = new mongoose.Schema({
         default: false,
         required: true
     },
+    rating:{
+        type: Number,
+        default:0
+    },
     CriditHoure:{
         type: Number
     },
