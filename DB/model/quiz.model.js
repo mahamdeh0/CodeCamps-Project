@@ -22,6 +22,9 @@ const quizSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    time:{
+        type:Number
+    },
     description: {
         type: String,
         required: true
