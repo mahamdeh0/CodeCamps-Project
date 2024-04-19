@@ -1398,15 +1398,16 @@ const unsubscribeFromCourse = async (req, res) => {
 
 const addQuiz = async (req, res) => {
   try {
-    const { name, description, problems } = req.body;
+    const { name, description, problems,time } = req.body;
 
-    if (!name || !description || !Array.isArray(problems)) {
+    if (!name || !description || !Array.isArray(problems)|| !time) {
         res.status(400).send('Missing or invalid data.');
         return;
     }
 
     const newQuiz = new QuizModel({
         name,
+        time,
         description,
         problems
     });
@@ -1422,7 +1423,6 @@ const addQuiz = async (req, res) => {
 const displayQuiz = async (req, res) => {
   try {
     const quizId = req.params.id; 
-
     const quiz = await QuizModel.findById(quizId).exec();
 
     if (!quiz) {
@@ -1439,12 +1439,14 @@ const displayQuiz = async (req, res) => {
 const getAllQuizzes = async (req, res) => {
   try {
 
-    const quizzes = await QuizModel.find({}, 'name description').exec();
-
+    const quizzes = await QuizModel.find({}, 'name description totalMarks time').exec();
+  
     const simplifiedQuizzes = quizzes.map(quiz => ({
       id: quiz._id,
       name: quiz.name,
-      description: quiz.description
+      time:quiz.time,
+      description: quiz.description,
+      totalMarks:quiz.totalMarks
     }));
 
     res.status(200).json(simplifiedQuizzes);

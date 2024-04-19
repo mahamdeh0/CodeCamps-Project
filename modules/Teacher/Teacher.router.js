@@ -44,8 +44,8 @@ router.post('/Makeorders', teacherauth(),authcontroller.makeorder);
 router.get('/Myorders', teacherauth(),authcontroller.myorders);
 
 router.post('/addQuiz',teacherauth(), authcontroller.addQuiz);
-router.get('/quiz/:id', teacherauth(),authcontroller.displayQuiz);
-router.get('/quizzes', teacherauth(),authcontroller.getAllQuizzes);
+router.get('/quiz/:id', authcontroller.displayQuiz);
+router.get('/quizzes', authcontroller.getAllQuizzes);
 
 router.delete('/deleteTeacherByEmail',authcontroller.deleteteacher);
 

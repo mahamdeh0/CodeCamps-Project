@@ -56,7 +56,7 @@ const userauth = () => {
         try {
 
             let {token} = req.headers;
-            console.log(token)
+    
             if (!token || !token.startsWith(process.env.startToken)) {
                 return res.status(401).json({message: "Invalid or missing token"});
             }

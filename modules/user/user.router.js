@@ -26,7 +26,6 @@ router.get('/viewCart', userauth(), authcontroller.viewCart);
 
 router.post('/subscribeToCourse',userauth(),authcontroller.subscribeToCourse);
 router.delete('/coursedelete/:id',userauth(),authcontroller.deleteCourse);
-
 router.post('/submitReview',userauth(),authcontroller.submitReview);
 router.post('/submitSolution/:problemId',userauth(),authcontroller.submitSolution);
 
@@ -34,7 +33,7 @@ router.post('/addToCart', userauth(), authcontroller.addToCart);
 router.post('/removeFromCart', userauth(), authcontroller.removeFromCart);
 router.post('/Makeorders', userauth(),authcontroller.makeorder);
 router.get('/Myorders', userauth(),authcontroller.myorders);
- 
+router.post('/payment',authcontroller.payment);
 router.delete('/deleteUserByEmail',authcontroller.deleteuser);
 
 module.exports=router; 

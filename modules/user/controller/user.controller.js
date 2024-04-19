@@ -1,5 +1,6 @@
 let bcrypt = require('bcryptjs');
 let jwt = require('jsonwebtoken');
+const stripe = require('stripe')("sk_test_51P6zO6BCyb69GFpbqzPqmYyQctCHWYPSPEGs4kLojDnHDU40KxdCHZM62NOp5H3yZ2xuCdPFbL6w6osmvl34czEf00pJcXI1Lt");
 const { userModel } = require("../../../DB/model/user.model");
 const { courseModel } = require("../../../DB/model/course.model");
 const { messageModel } = require("../../../DB/model/message.model");
@@ -13,6 +14,8 @@ const { productModel } = require("../../../DB/model/product.model");
 const { cartModel } = require("../../../DB/model/cart.model");
 const { sendEmail } = require('../../../services/SendEmail');
 const { nanoid } = require('nanoid');
+const { application } = require('express');
+
 
 const userSignup = async (req,res)=>{
 
@@ -404,22 +407,30 @@ const userconfirmEmailbycode = async(req,res)=>{
 };
 
 const subscribeToCourse = async (req, res) => {
-    const { courseId } = req.body; 
+    const { courseId,flag } = req.body; 
     const userId = req.user._id; 
-
     try {
         const course = await courseModel.findById(courseId);
+  
         if (!course) {
             return res.status(404).json({ message: "Course not found" });
         }
 
-        const existingSubscription = await SubscriptionModel.findOne({ user: userId, course: courseId });
+        const existingSubscription = await SubscriptionModel.findOne({ user: userId, course: course._id });
         if (existingSubscription) {
             return res.status(400).json({ message: "User is already subscribed to this course" });
         }
-
-        const subscription = await SubscriptionModel.create({ user: userId, course: courseId });
-        res.status(201).json({ message: "Subscription successful", subscription });
+        if (flag == 1)
+        {
+          const subscription = await SubscriptionModel.create({ user: userId, course: courseId });
+          res.status(201).json({ message: "Subscription successful", subscription });
+        }
+        else 
+        {
+          res.status(400).json({ message: "User not subscribed"});
+        }
+       
+      
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -1055,6 +1066,32 @@ const makeorder = async (req, res) => {
   }
 };
 
+const payment = async (req,res)=>{
+  const {amount , currency} = req.body;
+  console.log(amount,currency)
+  try{
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount:amount,
+          currency:currency
+        });
+        console.log(paymentIntent?.status);
+        if(paymentIntent?.status == 'requires_payment_method')
+        {
+          return res.status(200).json(
+            {
+              message:"Confirm payment",
+              client_secret:paymentIntent?.client_secret
+            }
+          )
+        }
+        return res.status(200).json({message:"Payment Completed"});
+  }catch(err)
+  {
+      console.log(err);
+      res.status(500).json(err);
+  }
+}
+
 const myorders  = async (req, res) => {
   try {
     const orders = await orderModel.find({ user: req.user._id })
@@ -1072,4 +1109,4 @@ const myorders  = async (req, res) => {
   }
 };
 
-module.exports={getUserData,userconfirmEmailbycode,viewproduct,myorders,addToCart,removeFromCart,viewCart,sendcode,update,makeorder,forgetpassword,sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}
+module.exports={payment,getUserData,userconfirmEmailbycode,viewproduct,myorders,addToCart,removeFromCart,viewCart,sendcode,update,makeorder,forgetpassword,sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}
