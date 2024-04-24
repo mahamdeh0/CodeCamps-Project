@@ -20,7 +20,9 @@ const { nanoid } = require('nanoid');
 
 const teacherSignup = async (req,res)=>{
 
-    const {name,email,password,nationality,Experience,gender,phone,age}= req.body;
+    const {name,email,password,nationality,Experience,gender,phone,age,mainImage,mainMimeType}= req.body;
+    const mainImageData = Buffer.from(mainImage, 'base64');
+    const mainImg = await new Image({ data: mainImageData, contentType: mainMimeType }).save();
 
     try{
     const teacher = await teacherModel.findOne({email:email});
@@ -31,7 +33,7 @@ const teacherSignup = async (req,res)=>{
     }else{
 
         const hashPassword = await bcrypt.hash(password,parseInt(process.env.saltRound));
-        const newTeacher = new teacherModel({email:email,teacherName:name, password:hashPassword,nationality:nationality,Experience:Experience,gender:gender,phone:phone,age:age});
+        const newTeacher = new teacherModel({mainImage: mainImg,email:email,teacherName:name, password:hashPassword,nationality:nationality,Experience:Experience,gender:gender,phone:phone,age:age});
         const savedTeacher = await newTeacher.save();
 
         if(!savedTeacher){
@@ -315,7 +317,7 @@ console.log("Here");
            
             const userupdate = await teacherModel.findOneAndUpdate({email:email},{sendcode:code});
 
-            res.status(201).json({message:"An account has been created successfully"})
+            res.status(201).json({message:"An account has been created successfully",user:userupdate})
         }
  
     }}catch (error){
@@ -348,7 +350,7 @@ const teacherLogin = async (req, res) => {
 
     const token = jwt.sign({ id: account._id }, process.env.logintoken, { expiresIn: 60 * 60 * 24 });
 
-    return res.status(200).json({ message: `Done signing in as teacher`, token });
+    return res.status(200).json({ message: `Done signing in as teacher`, token, id: account._id,name:account.teacherName });
 
   } catch (error) {
     console.error(error);
@@ -1321,6 +1323,14 @@ const getAllCourses = async (req, res) => {
             message: "Courses fetched successfully.",
             courses: updatedCourses,
         });}
+        else{
+          res.status(404).json({
+            message: "No Courses Found",
+        
+        });
+        }
+   
+      
       
   } catch (error) {
     console.error('Error retrieving courses:', error);

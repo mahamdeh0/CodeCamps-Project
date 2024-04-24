@@ -15,7 +15,10 @@ const teacherSignup = {
         .messages({'string.empty': 'Age must consist of two digits and be between 12 and 99.'}),
          Experience: Joi.string().min(1).max(200).required(),
         nationality: Joi.string().min(1).max(20).required(),
-        achievements: Joi.string().min(1).max(200).required(),     
+        achievements: Joi.string().min(1).max(200).required(),  
+        mainImage:Joi.string(),
+        mainMimeType:Joi.string()
+
     })      
 }; 
    

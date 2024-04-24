@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
+    mainImage :{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Image'
+    },
     userName: {
         type: String,
         required: true

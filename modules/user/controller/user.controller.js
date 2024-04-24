@@ -12,6 +12,7 @@ const { BookModel } = require("../../../DB/model/book.model");
 const { orderModel } = require("../../../DB/model/order.model");
 const { productModel } = require("../../../DB/model/product.model");
 const { cartModel } = require("../../../DB/model/cart.model");
+const {Image} = require("../../../DB/model/images.model");
 const { sendEmail } = require('../../../services/SendEmail');
 const { nanoid } = require('nanoid');
 const { application } = require('express');
@@ -19,8 +20,10 @@ const { application } = require('express');
 
 const userSignup = async (req,res)=>{
 
-    const {name,email,password,age,gender}= req.body;
-    console.log({name,email,password,age,gender});
+    const {name,email,password,age,gender,mainImage,mainMimeType}= req.body;
+    const mainImageData = Buffer.from(mainImage, 'base64');
+    const mainImg = await new Image({ data: mainImageData, contentType: mainMimeType }).save();
+  
     try{
     const user = await userModel.findOne({email:email});
    
@@ -30,7 +33,7 @@ const userSignup = async (req,res)=>{
     }else{
 
         const hashPassword = await bcrypt.hash(password,parseInt(process.env.saltRound));
-        const newUser = new userModel({email:email,userName:name, password:hashPassword,age:age,gender:gender});
+        const newUser = new userModel({mainImage:mainImg, email:email,userName:name, password:hashPassword,age:age,gender:gender});
         const savedUser = await newUser.save();
 
         if(!savedUser){
@@ -345,7 +348,7 @@ const userLogin = async (req, res) => {
 
     const token = jwt.sign({ id: account._id }, process.env.logintoken, { expiresIn: 60 * 60 * 24 });
 
-    return res.status(200).json({ message: `Done signing in as user`, token });
+    return res.status(200).json({ message: `Done signing in as user`, token ,id:account._id,name:account.userName});
 
   } catch (error) {
     console.error(error);
@@ -371,7 +374,7 @@ const userconfirmEmail = async(req,res)=>{
             res.status(400).json({message:"account already confirmed"})
         }else{
 
-            res.status(200).json({message:"email confirmed Thx"})
+            res.status(200).json({message:"email confirmed Thx",user})
         }
     }}catch{
         res.status(500).json({message:"error catch"})

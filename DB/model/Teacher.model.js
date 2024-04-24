@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 
 const teacherSchema = new mongoose.Schema({
-
+    mainImage :{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Image'
+    },
     teacherName:{
         type:String,
         required:true
