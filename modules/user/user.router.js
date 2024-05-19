@@ -7,6 +7,7 @@ const { userauth } = require('../../middlewear/auth');
 
 router.post('/signUp',validation(userSignup),authcontroller.userSignup);
 router.post('/signin',authcontroller.userLogin);
+router.post('/editPoints',userauth(),authcontroller.editUserPoints);
 router.get('/getuser',userauth(),authcontroller.getUserData);
 router.get('/confirmEmail/:token',authcontroller.userconfirmEmail);
 router.patch('/userconfirmEmailbycode',authcontroller.userconfirmEmailbycode);

@@ -1111,5 +1111,30 @@ const myorders  = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch order history', error: error.toString() });
   }
 };
+const editUserPoints = async (req, res) => {
+  const userId = req.user._id;  // Assuming 'req.user' contains the user ID
+  const { points } = req.body;
 
-module.exports={payment,getUserData,userconfirmEmailbycode,viewproduct,myorders,addToCart,removeFromCart,viewCart,sendcode,update,makeorder,forgetpassword,sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}
+  try {
+      // Fetch the user document from the database
+      const user = await userModel.findById(userId);
+
+      if (!user) {
+          return res.status(404).send({ message: "User not found." });
+      }
+
+      // Add the provided points to the existing user points
+      user.points += points;
+      
+      // Save the updated user document
+      await user.save();
+
+      console.log(`Updated points: ${user.points}`);
+      res.status(200).send({ message: "Points updated successfully.", updatedPoints: user.points });
+  } catch (error) {
+      console.error("Error updating user points:", error);
+      res.status(500).send({ message: "Failed to update points." });
+  }
+};
+
+module.exports={editUserPoints,payment,getUserData,userconfirmEmailbycode,viewproduct,myorders,addToCart,removeFromCart,viewCart,sendcode,update,makeorder,forgetpassword,sendMessageToTeacher,userSignup,userLogin,subscribeToCourse,viwearticle,viewSubscribedCourses,viwebooks,deleteCourse,submitReview,submitSolution,userconfirmEmail,deleteuser,getConversationHistory}

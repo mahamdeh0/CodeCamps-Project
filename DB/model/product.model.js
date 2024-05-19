@@ -18,7 +18,10 @@ const productSchema = new mongoose.Schema({
       type: Number,
       required: true,
     },
-    images: [String], 
+    image :{
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'Image'
+  },
   }, {timestamps: true});
   
   const productModel = mongoose.model('product', productSchema);

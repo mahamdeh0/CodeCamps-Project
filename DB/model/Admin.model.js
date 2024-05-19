@@ -15,22 +15,7 @@ const adminSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    age:{
-        type:Number,
-    },
-    gender:{
-        type:String,
-        enum:['male','female'],
-        default:'male'
-    },
-    profilePic:{
-        type:String
-    },
-    confirmEmail:{
-        type:Boolean,
-        default:false
-    }
-
+    
 },{timestamps:true});
 
     const adminModel = mongoose.model('admin',adminSchema);
