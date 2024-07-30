@@ -11,7 +11,7 @@ async function sendEmail(recipient, subject, body) {
   });
 
   let info = await transporter.sendMail({
-    from: '"Your Name" <sasa.sas6a6@gmail.com>', 
+    from: '"Your Name" ', 
     to: recipient, 
     subject: subject, 
     text: body, 
